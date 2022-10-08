@@ -29,10 +29,34 @@ def send_normal_buy(msg):
     send_dingtalk_message(access_token, msg+"\n--gulliver")
 
 
-def send_short_over_sell(msg):
+def send_short_bull(msg):
     access_token = 'https://oapi.dingtalk.com/robot/send?access_token=1b2570b482bc750749dc2733bca5f9c820c5df7a6fc597ca4954f195834d4c7a'
     send_dingtalk_message(access_token, msg+"\n--gulliver")
 
+
+def send_short_bear(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=edb9bc14e04cff680ccc65b1c1fcb148dbf82ed89a44ffb8a4671bcaaec05be0'
+    send_dingtalk_message(access_token, msg+"\n--gulliver")
+
+
+def send_day_bull(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=bc271058e2e64cc88e8b8ce6842e290cc94d917e6d09362cad3f9187bde31b15'
+    send_dingtalk_message(access_token, msg+"\n--gulliver")
+
+
+def send_day_bear(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=88f7a41ed014e867fb59ebea1b8a01f31b1a4ca3f20695f9aae5b0a8139149bf'
+    send_dingtalk_message(access_token, msg+"\n--gulliver")
+
+
+def send_week_bull(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=8aac3da1d291c9acd2be47b9306f153fa8e91caad8d26a20669821c825677ced'
+    send_dingtalk_message(access_token, msg+"\n--gulliver")
+
+
+def send_week_bear(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=4bd62f55525d77c8553254ef730f42471bc73699519c5ca011f8362423bc48a3'
+    send_dingtalk_message(access_token, msg+"\n--gulliver")
 
 if __name__ == "__main__":
     # 获取dingtalk token url
