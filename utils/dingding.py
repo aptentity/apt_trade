@@ -24,10 +24,13 @@ def send_dingtalk_message(url, content):
     return r.text
 
 # 普通买入消息
-def send_normal_buy(msg):
-    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=c39f229f015c093c32ecdc9f2fe7f186ce2ffd2dda8a5b44b76f9af5b504bbdd'
+def trend_bull(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=a18ed48ce5689243f3dfcff9eccf78654e38f3e3306b9080f4224794d5872925'
     send_dingtalk_message(access_token, msg+"\n--gulliver")
 
+def trend_bear(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=d5bbc36f0545270456bf4a6be93195d7c579acc8e6584cc2c7fecdcb6ac0ebff'
+    send_dingtalk_message(access_token, msg+"\n--gulliver")
 
 def send_short_bull(msg):
     access_token = 'https://oapi.dingtalk.com/robot/send?access_token=1b2570b482bc750749dc2733bca5f9c820c5df7a6fc597ca4954f195834d4c7a'

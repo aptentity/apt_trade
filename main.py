@@ -1,5 +1,58 @@
-from futu import *
-from utils import futuUtils as fu
+import day_bear
+import day_bull
+import short_bear
+import short_bull
+import trend_bear
+import trend_bull
+import week_bear
+import week_bull
+import time
+import schedule
+
+
+def short_job():
+    try:
+        short_bull.short_bull()
+        time.sleep(10)
+        short_bear.short_bear()
+        time.sleep(10)
+
+        trend_bull.trend_bull()
+        time.sleep(10)
+        trend_bear.trend_bear()
+        time.sleep(10)
+    finally:
+        print("short job done")
+
+
+def day_job():
+    try:
+        week_bull.week_bull()
+        time.sleep(10)
+        week_bear.week_bear()
+        time.sleep(10)
+
+        day_bull.day_bull()
+        time.sleep(10)
+        day_bear.day_bear()
+        time.sleep(10)
+    finally:
+        print("day_job done")
+
+
+schedule.every(5).minutes.do(short_job)
+schedule.every().day.at("10:00").do(day_job)
+schedule.every().day.at("14:45").do(day_job)
+schedule.every().day.at("15:45").do(day_job)
+
+while True:
+    print("while")
+    schedule.run_pending()
+    time.sleep(1)
+
+#
+
+
 
 # fu.unlock_trade()
 
@@ -22,20 +75,19 @@ from utils import futuUtils as fu
 # if ret == RET_OK:
 #     print(data)
 
-ret, data = fu.quote_context.get_user_security('沪深')
-if ret == RET_OK:
-    print(data)
-
-print(data.iloc[0, 0])
+# ret, data = fu.quote_context.get_user_security('沪深')
+# if ret == RET_OK:
+#     print(data)
+#
+# print(data.iloc[0, 0])
 #
 # for row in data.itertuples():
 #     print(row[1])
 
-fu.quote_context.subscribe(data.iloc[0, 0], SubType.K_15M)
-ret, data = fu.quote_context.get_cur_kline(data.iloc[0, 0], 1000, SubType.K_15M)
-if ret == RET_OK:
-    print('111111111')
-    print(data)
-else:
-    print('error:', data)
-
+# fu.quote_context.subscribe(data.iloc[0, 0], SubType.K_15M)
+# ret, data = fu.quote_context.get_cur_kline(data.iloc[0, 0], 1000, SubType.K_15M)
+# if ret == RET_OK:
+#     print('111111111')
+#     print(data)
+# else:
+#     print('error:', data)
