@@ -17,9 +17,9 @@ def short_job():
         short_bear.short_bear()
         time.sleep(10)
 
-        trend_bull.trend_bull()
+        trend_bull.trend_bull(1)
         time.sleep(10)
-        trend_bear.trend_bear()
+        trend_bear.trend_bear(1)
         time.sleep(10)
     finally:
         print("short job done")
@@ -27,6 +27,11 @@ def short_job():
 
 def day_job():
     try:
+        trend_bull.trend_bull(0)
+        time.sleep(10)
+        trend_bear.trend_bear(0)
+        time.sleep(10)
+
         week_bull.week_bull()
         time.sleep(10)
         week_bear.week_bear()
@@ -40,15 +45,18 @@ def day_job():
         print("day_job done")
 
 
+# trend_bear.trend_bear(1)
+# trend_bull.trend_bull(0)
+short_job()
 schedule.every(5).minutes.do(short_job)
 schedule.every().day.at("10:00").do(day_job)
 schedule.every().day.at("14:45").do(day_job)
 schedule.every().day.at("15:45").do(day_job)
-
-while True:
-    print("while")
-    schedule.run_pending()
-    time.sleep(1)
+#
+# while True:
+#     print("while")
+#     schedule.run_pending()
+#     time.sleep(1)
 
 #
 

@@ -7,6 +7,7 @@ from utils import dingding as dd
 
 
 def week_bear():
+    print('week_bear doing')
     tips = '1、涨幅较大，需要注意减仓\n' \
 
     group_name = '周空'
@@ -36,7 +37,8 @@ def week_bear():
                 print('error')
         else:
             print('error:', data)
+    print(resultName)
     if resultName:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
         dd.send_week_bear(tips + '\n' + ';'.join(resultName))
-        print(resultName)
+

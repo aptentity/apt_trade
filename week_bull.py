@@ -7,6 +7,7 @@ from utils import dingding as dd
 
 
 def week_bull():
+    print('week_bull doing')
     tips = '1、周线超跌博反弹，等待日macd向上，标志性k线\n' \
            '2、日线走出向上趋势' \
 
@@ -37,7 +38,9 @@ def week_bull():
                 print('error')
         else:
             print('error:', data)
+
+    print(resultName)
     if resultName:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
         dd.send_week_bull(tips + '\n' + ';'.join(resultName))
-        print(resultName)
+

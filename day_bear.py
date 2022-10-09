@@ -7,6 +7,7 @@ from utils import dingding as dd
 
 
 def day_bear():
+    print('day_bear doing')
     tips = '1、涨幅较大，需要注意减仓\n' \
 
     group_name = '日空'
@@ -33,7 +34,7 @@ def day_bear():
                 resultCode.append(code)
         else:
             print('error:', data)
+    print(resultName)
     if resultName:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
         dd.send_day_bear(tips + '\n' + ';'.join(resultName))
-        print(resultName)

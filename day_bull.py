@@ -7,6 +7,7 @@ from utils import dingding as dd
 
 
 def day_bull():
+    print('day_bull doing')
     tips = '1、日线超跌博反弹，等待日macd向上，标志性k线\n' \
 
     group_name = '日多'
@@ -33,8 +34,8 @@ def day_bull():
                 resultCode.append(code)
         else:
             print('error:', data)
-
+    print(resultName)
     if resultName:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
         dd.send_day_bull(tips + '\n' + ';'.join(resultName))
-        print(resultName)
+
