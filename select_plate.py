@@ -47,27 +47,28 @@ def selected(code):
     return 0
 
 
-group_name = '板块'
-resultCode = []
-resultName = []
-crossCode = []
-crossName = []
+def select_plate():
+    group_name = '板块'
+    resultCode = []
+    resultName = []
+    crossCode = []
+    crossName = []
 
-fu.clear_user_security(group_name)
-ret, data = fu.quote_context.get_plate_list(Market.SH, Plate.ALL)
-if ret == RET_OK:
-    for row in data.itertuples():
-        code = getattr(row, 'code')
-        result = selected(code)
-        if result == 1:
-            resultCode.append(code)
-            resultName.append(getattr(row, 'plate_name'))
-        elif result == 2:
-            crossCode.append(code)
-            crossName.append(getattr(row, 'plate_name'))
-else:
-    print('error:', data)
-print(resultName)
-print(crossName)
-print((len(resultName) + len(resultCode)) / len(data))
-fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
+    fu.clear_user_security(group_name)
+    ret, data = fu.quote_context.get_plate_list(Market.SH, Plate.ALL)
+    if ret == RET_OK:
+        for row in data.itertuples():
+            code = getattr(row, 'code')
+            result = selected(code)
+            if result == 1:
+                resultCode.append(code)
+                resultName.append(getattr(row, 'plate_name'))
+            elif result == 2:
+                crossCode.append(code)
+                crossName.append(getattr(row, 'plate_name'))
+    else:
+        print('error:', data)
+    print(resultName)
+    print(crossName)
+    print((len(resultName) + len(crossName)) / len(data))
+    fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)

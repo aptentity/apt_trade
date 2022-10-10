@@ -1,5 +1,6 @@
 import day_bear
 import day_bull
+import select_plate
 import short_bear
 import short_bull
 import trend_bear
@@ -41,6 +42,8 @@ def day_job():
         time.sleep(10)
         day_bear.day_bear()
         time.sleep(10)
+
+        select_plate.select_plate()
     finally:
         print("day_job done")
 
@@ -48,15 +51,15 @@ def day_job():
 # trend_bear.trend_bear(1)
 # trend_bull.trend_bull(0)
 short_job()
-schedule.every(5).minutes.do(short_job)
-schedule.every().day.at("10:00").do(day_job)
+schedule.every(10).minutes.do(short_job)
+schedule.every().day.at("10:05").do(day_job)
 schedule.every().day.at("14:45").do(day_job)
 schedule.every().day.at("15:45").do(day_job)
-#
-# while True:
-#     print("while")
-#     schedule.run_pending()
-#     time.sleep(1)
+
+while True:
+    print("while")
+    schedule.run_pending()
+    time.sleep(1)
 
 #
 

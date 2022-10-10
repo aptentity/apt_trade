@@ -32,12 +32,11 @@ def trend_bear(msg):
     access_token = 'https://oapi.dingtalk.com/robot/send?access_token=d5bbc36f0545270456bf4a6be93195d7c579acc8e6584cc2c7fecdcb6ac0ebff'
     send_dingtalk_message(access_token, msg+"\n--gulliver")
 
-def send_short_bull(msg):
+def send_short_bear(msg):
     access_token = 'https://oapi.dingtalk.com/robot/send?access_token=1b2570b482bc750749dc2733bca5f9c820c5df7a6fc597ca4954f195834d4c7a'
     send_dingtalk_message(access_token, msg+"\n--gulliver")
 
-
-def send_short_bear(msg):
+def send_short_bull(msg):
     access_token = 'https://oapi.dingtalk.com/robot/send?access_token=edb9bc14e04cff680ccc65b1c1fcb148dbf82ed89a44ffb8a4671bcaaec05be0'
     send_dingtalk_message(access_token, msg+"\n--gulliver")
 
