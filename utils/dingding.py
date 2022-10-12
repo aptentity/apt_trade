@@ -60,6 +60,17 @@ def send_week_bear(msg):
     access_token = 'https://oapi.dingtalk.com/robot/send?access_token=4bd62f55525d77c8553254ef730f42471bc73699519c5ca011f8362423bc48a3'
     send_dingtalk_message(access_token, msg+"\n--gulliver")
 
+
+def duy_notice(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=98c7dd2d0c5ac59a8fc14b8f03b39063e256616c8cd87e92a482217fb8180121'
+    send_dingtalk_message(access_token, msg+"\n--gulliver")
+
+
+def sell_notice(msg):
+    access_token = 'https://oapi.dingtalk.com/robot/send?access_token=24180f92aa1c91597fcc5590f0bfeba3162b7d4c57d8b45620768bbdbd5325fd'
+    send_dingtalk_message(access_token, msg+"\n--gulliver")
+
+
 if __name__ == "__main__":
     # 获取dingtalk token url
     access_token = 'https://oapi.dingtalk.com/robot/send?access_token=c39f229f015c093c32ecdc9f2fe7f186ce2ffd2dda8a5b44b76f9af5b504bbdd'

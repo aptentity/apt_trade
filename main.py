@@ -3,25 +3,36 @@ import day_bull
 import select_plate
 import short_bear
 import short_bull
+import trade_notice
 import trend_bear
 import trend_bull
 import week_bear
 import week_bull
 import time
 import schedule
+from utils import futuUtils as fu
 
 
-def short_job():
+def short_job(code=0):
     try:
-        short_bull.short_bull()
-        time.sleep(10)
-        short_bear.short_bear()
-        time.sleep(10)
+        if code == 1 or fu.is_ch_normal_trading_time():
+            print('A..............')
+            short_bull.short_bull()
+            time.sleep(10)
+            short_bear.short_bear()
+            time.sleep(10)
 
-        trend_bull.trend_bull(1)
-        time.sleep(10)
-        trend_bear.trend_bear(1)
-        time.sleep(10)
+            trend_bull.trend_bull(1)
+            time.sleep(10)
+            trend_bear.trend_bear(1)
+            time.sleep(10)
+
+            trade_notice.trade_notice_cn()
+            time.sleep(10)
+        if code == 1 or fu.is_us_normal_trading_time():
+            print('us..............')
+            trade_notice.trade_notice_us()
+            time.sleep(10)
     finally:
         print("short job done")
 
@@ -48,9 +59,9 @@ def day_job():
         print("day_job done")
 
 
-# trend_bear.trend_bear(1)
-# trend_bull.trend_bull(0)
-short_job()
+trend_bear.trend_bear(0)
+trend_bull.trend_bull(0)
+short_job(1)
 schedule.every(10).minutes.do(short_job)
 schedule.every().day.at("10:05").do(day_job)
 schedule.every().day.at("14:45").do(day_job)
@@ -62,7 +73,6 @@ while True:
     time.sleep(1)
 
 #
-
 
 
 # fu.unlock_trade()

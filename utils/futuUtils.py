@@ -1,9 +1,9 @@
 from futu import *
 import pandas as pd
+
 pd.set_option('display.max_rows', 5000)
 pd.set_option('display.max_columns', 5000)
 pd.set_option('display.width', 1000)
-
 
 TRADING_ENVIRONMENT = TrdEnv.REAL  # 交易环境：真实 / 模拟
 TRADING_MARKET = TrdMarket.HK  # 交易市场权限，用于筛选对应交易市场权限的账户
@@ -14,6 +14,8 @@ FUTUOPEND_PORT = 11111  # FutuOpenD 监听端口
 quote_context = OpenQuoteContext(host=FUTUOPEND_ADDRESS, port=FUTUOPEND_PORT)  # 行情对象
 trade_context = OpenSecTradeContext(filter_trdmarket=TRADING_MARKET, host=FUTUOPEND_ADDRESS, port=FUTUOPEND_PORT,
                                     security_firm=SecurityFirm.FUTUSECURITIES)  # 交易对象，根据交易品种修改交易对象类型
+trade_us_context = OpenSecTradeContext(filter_trdmarket=TrdMarket.US, host=FUTUOPEND_ADDRESS, port=FUTUOPEND_PORT,
+                                       security_firm=SecurityFirm.FUTUSECURITIES)  # 交易对象，根据交易品种修改交易对象类型
 
 
 # 解锁交易
@@ -24,7 +26,43 @@ def unlock_trade():
             print('解锁交易失败：', data)
             return False
         print('解锁交易成功！')
+        ret, data = trade_us_context.unlock_trade(TRADING_PWD)
+        if ret != RET_OK:
+            print('解锁交易失败：', data)
+            return False
+        print('解锁交易成功！')
     return True
+
+
+def is_ch_normal_trading_time():
+    ret, data = quote_context.get_market_state(['SH.000001', 'HK.07226'])
+    if ret != RET_OK:
+        print('获取市场状态失败：', data)
+        return False
+    market_state = data['market_state'][0]
+    print(data['market_state'])
+    if market_state == MarketState.MORNING or \
+            market_state == MarketState.AFTERNOON:
+        return True
+    market_state = data['market_state'][1]
+    if market_state == MarketState.MORNING or \
+            market_state == MarketState.AFTERNOON:
+        return True
+    return False
+
+
+def is_us_normal_trading_time():
+    ret, data = quote_context.get_market_state(['US.AAPL'])
+    if ret != RET_OK:
+        print('获取市场状态失败：', data)
+        return False
+    market_state = data['market_state'][0]
+    print(market_state)
+    if market_state == MarketState.AFTERNOON or \
+            market_state == MarketState.PRE_MARKET_BEGIN or \
+            market_state == MarketState.AFTER_HOURS_BEGIN:
+        return True
+    return False
 
 
 # 获取市场状态
