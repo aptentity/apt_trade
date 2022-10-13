@@ -11,6 +11,7 @@ import week_bull
 import time
 import schedule
 from utils import futuUtils as fu
+from report import day_report
 
 
 def short_job(code=0):
@@ -33,28 +34,31 @@ def short_job(code=0):
             print('us..............')
             trade_notice.trade_notice_us()
             time.sleep(10)
+            short_bear.short_bear('美股')
+            time.sleep(10)
     finally:
         print("short job done")
 
 
 def day_job():
     try:
-        trend_bull.trend_bull(0)
-        time.sleep(10)
-        trend_bear.trend_bear(0)
-        time.sleep(10)
-
-        week_bull.week_bull()
-        time.sleep(10)
-        week_bear.week_bear()
-        time.sleep(10)
-
-        day_bull.day_bull()
-        time.sleep(10)
-        day_bear.day_bear()
-        time.sleep(10)
-
-        select_plate.select_plate()
+        day_report()
+        # trend_bull.trend_bull(0)
+        # time.sleep(10)
+        # trend_bear.trend_bear(0)
+        # time.sleep(10)
+        #
+        # week_bull.week_bull()
+        # time.sleep(10)
+        # week_bear.week_bear()
+        # time.sleep(10)
+        #
+        # day_bull.day_bull()
+        # time.sleep(10)
+        # day_bear.day_bear()
+        # time.sleep(10)
+        #
+        # select_plate.select_plate()
     finally:
         print("day_job done")
 
@@ -63,14 +67,12 @@ trend_bear.trend_bear(0)
 trend_bull.trend_bull(0)
 short_job(1)
 schedule.every(10).minutes.do(short_job)
-schedule.every().day.at("10:05").do(day_job)
 schedule.every().day.at("14:45").do(day_job)
-schedule.every().day.at("15:45").do(day_job)
 
 while True:
     print("while")
     schedule.run_pending()
-    time.sleep(1)
+    time.sleep(5)
 
 #
 

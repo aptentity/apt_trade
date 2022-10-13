@@ -40,5 +40,5 @@ def week_bear():
     print(resultName)
     if resultName:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
-        dd.send_week_bear(tips + '\n' + ';'.join(resultName))
-
+        # dd.send_week_bear(tips + '\n' + ';'.join(resultName))
+    return '周线级别涨幅较大：' + ';'.join(resultName)

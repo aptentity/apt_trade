@@ -7,7 +7,8 @@ import pandas_ta as ta
 from utils import dingding as dd
 
 
-def trend_bull(cross):
+def trend_bull(cross=0):
+    result = "15分钟趋势走好"
     print('trend_bull doing')
     tips = '1、15分钟金叉 \n'
 
@@ -49,10 +50,11 @@ def trend_bull(cross):
     print(resultName)
     if resultName or resultNew:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
-        dd.trend_bull(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n' + ';'.join(resultName))
+        # dd.trend_bull(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n' + ';'.join(resultName))
+    result = result + ';'.join(resultNew) + ';' + ';'.join(resultName)
 
     if cross == 1:
-        return
+        return result
 
     day_code = []
     # 根据日线、周线过滤
@@ -75,6 +77,7 @@ def trend_bull(cross):
     group_name = '趋势多日'
     fu.clear_user_security(group_name)
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, day_code)
+    result = result + "\n趋势多日" + ';'.join(day_code)
 
     week_code = []
     for code in resultCode:
@@ -91,3 +94,6 @@ def trend_bull(cross):
     group_name = '趋势多周'
     fu.clear_user_security(group_name)
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, week_code)
+    result = result + "\n趋势多周" + ';'.join(week_code)
+
+    return result

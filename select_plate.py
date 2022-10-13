@@ -72,3 +72,4 @@ def select_plate():
     print(crossName)
     print((len(resultName) + len(crossName)) / len(data))
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
+    return "强势板块：" + str((len(resultName) + len(crossName)) / len(data)) + " :" + ';'.join(resultName)

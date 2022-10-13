@@ -44,3 +44,4 @@ def week_bull():
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
         dd.send_week_bull(tips + '\n' + ';'.join(resultName))
 
+    return '周线级别跌幅较大：' + ';'.join(resultName)

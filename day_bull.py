@@ -16,8 +16,9 @@ def day_bull():
 
     # 取出列表
     ret, data = fu.quote_context.get_user_security('沪深')
-    if ret == RET_OK:
+    if ret != RET_OK:
         print(data)
+        return
 
     resultCode = []
     resultName = []
@@ -37,5 +38,6 @@ def day_bull():
     print(resultName)
     if resultName:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
-        dd.send_day_bull(tips + '\n' + ';'.join(resultName))
+        # dd.send_day_bull(tips + '\n' + ';'.join(resultName))
 
+    return '日线级别跌幅较大：' + ';'.join(resultName)

@@ -6,7 +6,7 @@ import pandas_ta as ta
 from utils import dingding as dd
 
 
-def trend_bear(cross):
+def trend_bear(cross=0):
     print('trend_bear doing')
     tips = '1、15分钟死叉 \n'
 
@@ -48,5 +48,5 @@ def trend_bear(cross):
     print(resultName)
     if resultName or resultNew:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
-        dd.trend_bear(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n' + ';'.join(resultName))
-
+        # dd.trend_bear(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n' + ';'.join(resultName))
+    return '15分钟趋势走坏：' + ';'.join(resultNew) + ';' + ';'.join(resultName)

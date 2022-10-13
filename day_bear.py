@@ -16,8 +16,9 @@ def day_bear():
 
     # 取出列表
     ret, data = fu.quote_context.get_user_security('特别关注')
-    if ret == RET_OK:
+    if ret != RET_OK:
         print(data)
+        return
 
     resultCode = []
     resultName = []
@@ -37,4 +38,5 @@ def day_bear():
     print(resultName)
     if resultName:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
-        dd.send_day_bear(tips + '\n' + ';'.join(resultName))
+        # dd.send_day_bear(tips + '\n' + ';'.join(resultName))
+    return '日线级别涨幅较大：' + ';'.join(resultName)

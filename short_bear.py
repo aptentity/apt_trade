@@ -6,7 +6,7 @@ import pandas_ta as ta
 from utils import dingding as dd
 
 
-def short_bear():
+def short_bear(grop='特别关注'):
     print('short_bear doing')
     tips = '1、短期内第二次出现就卖出一部分\n' \
            '2、需要等待至少1分钟死叉后卖出\n' \
@@ -17,7 +17,7 @@ def short_bear():
     fu.clear_user_security(group_name)
 
     # 取出列表
-    ret, data = fu.quote_context.get_user_security('特别关注')
+    ret, data = fu.quote_context.get_user_security(grop)
     if ret != RET_OK:
         print(data)
 
@@ -26,7 +26,7 @@ def short_bear():
     for row in data.itertuples():
         code = getattr(row, 'code')
         # print(code)
-        fu.quote_context.subscribe(code, SubType.K_15M)
+        fu.quote_context.subscribe(code, SubType.K_15M, extended_time=True)
         ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
         if ret == RET_OK:
             ema20 = ta.ma('ema', data['close'], length=20)
@@ -40,4 +40,3 @@ def short_bear():
     if resultName:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
         dd.send_short_bear(tips + '\n' + ';'.join(resultName))
-
