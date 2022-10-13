@@ -49,4 +49,7 @@ def trend_bear(cross=0):
     if resultName or resultNew:
         fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode)
         # dd.trend_bear(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n' + ';'.join(resultName))
+
+    if cross == 1 and resultNew:
+        dd.trend_bear(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n')
     return '15分钟趋势走坏：' + ';'.join(resultNew) + ';' + ';'.join(resultName)

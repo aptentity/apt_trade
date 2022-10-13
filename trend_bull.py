@@ -54,6 +54,8 @@ def trend_bull(cross=0):
     result = result + ';'.join(resultNew) + ';' + ';'.join(resultName)
 
     if cross == 1:
+        if resultName or resultNew:
+            dd.trend_bull(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n')
         return result
 
     day_code = []
