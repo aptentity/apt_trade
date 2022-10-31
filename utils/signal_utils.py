@@ -32,3 +32,10 @@ def macd_death_cross(close):
     if result.iloc[-1] < 0 < result.iloc[-2]:
         return True
     return False
+
+
+def macd_king_cross(close):
+    result = cal_macd(close)
+    if result.iloc[-1] > 0 > result.iloc[-2]:
+        return True
+    return False

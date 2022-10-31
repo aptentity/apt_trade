@@ -11,6 +11,7 @@ import week_bull
 import time
 from utils import dingding as dd
 
+
 def day_report():
     week_bear_r = week_bear.week_bear()
     time.sleep(10)
@@ -37,6 +38,5 @@ def day_report():
     dd.send_day_bull(report)
     with open('day_report.txt', 'a') as f:
         f.writelines(report)
-
 
 # day_report()

@@ -1,5 +1,6 @@
 import day_bear
 import day_bull
+import filter_stock
 import select_plate
 import short_bear
 import short_bull
@@ -42,7 +43,8 @@ def short_job(code=0):
 
 def day_job():
     try:
-        day_report()
+        filter_stock.filter_base()
+        day_report.day_report()
         # trend_bull.trend_bull(0)
         # time.sleep(10)
         # trend_bear.trend_bear(0)
@@ -66,8 +68,9 @@ def day_job():
 trend_bear.trend_bear(0)
 trend_bull.trend_bull(0)
 short_job(1)
+day_job()
 schedule.every(10).minutes.do(short_job)
-schedule.every().day.at("14:45").do(day_job)
+schedule.every().day.at("14:40").do(day_job)
 
 while True:
     print("while")

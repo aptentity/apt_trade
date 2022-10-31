@@ -65,6 +65,51 @@ def is_us_normal_trading_time():
     return False
 
 
+def is_us_trading_time():
+    ret, data = quote_context.get_market_state(['US.AAPL'])
+    if ret != RET_OK:
+        print('获取市场状态失败：', data)
+        return False
+    market_state = data['market_state'][0]
+    print(market_state)
+    if market_state == MarketState.AFTERNOON:
+        return True
+    return False
+
+
+# 买入操作时间段
+def is_buy_trading_time(code):
+    ret, data = quote_context.get_market_state(code)
+    if ret != RET_OK:
+        print('获取市场状态失败：', data)
+        return False
+    market_state = data['market_state'][0]
+    print(market_state)
+    if "US" in code and market_state == MarketState.AFTERNOON:
+        return True
+    elif "HK" in code and (market_state == MarketState.MORNING or market_state == MarketState.AFTERNOON):
+        return True
+    else:
+        return False
+
+
+def is_sell_trading_time(code):
+    ret, data = quote_context.get_market_state(code)
+    if ret != RET_OK:
+        print('获取市场状态失败：', data)
+        return False
+    market_state = data['market_state'][0]
+    print(market_state)
+    if "US" in code and (market_state == MarketState.AFTERNOON or
+                         market_state == MarketState.PRE_MARKET_BEGIN or
+                         market_state == MarketState.AFTER_HOURS_BEGIN):
+        return True
+    elif "HK" in code and (market_state == MarketState.MORNING or market_state == MarketState.AFTERNOON):
+        return True
+    else:
+        return False
+
+
 # 获取市场状态
 def is_normal_trading_time(code):
     ret, data = quote_context.get_market_state([code])
@@ -125,3 +170,21 @@ def clear_user_security(group_name):
             code = getattr(row, 'code')
             result.append(code)
     quote_context.modify_user_security(group_name, ModifyUserSecurityOp.MOVE_OUT, result)
+
+
+# 清空分组中股票
+def delete_user_security(group_name):
+    ret, data = quote_context.get_user_security(group_name)
+    result = []
+    if ret == RET_OK:
+        for row in data.itertuples():
+            code = getattr(row, 'code')
+            result.append(code)
+    quote_context.modify_user_security(group_name, ModifyUserSecurityOp.DEL, result)
+
+
+def get_trade_context(code):
+    if "US" in code:
+        return trade_us_context
+    if "HK" in code:
+        return trade_context
