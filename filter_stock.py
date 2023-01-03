@@ -135,7 +135,7 @@ def filter_base():
     return resultName
 
 
-print(filter_base())
+# print(filter_base())
 # ret, data = fu.quote_context.get_user_security('沪深')
 # if ret == RET_OK:
 #     for row in data.itertuples():

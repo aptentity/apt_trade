@@ -12,7 +12,7 @@ def trend_bull(cross=0):
     print('trend_bull doing')
     tips = '1、15分钟金叉 \n'
 
-    group_name = '趋势多'
+    group_name = '重点'
 
     if cross != 1:
         fu.clear_user_security(group_name)

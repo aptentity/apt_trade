@@ -95,7 +95,7 @@ def set_high(code, high):
     s.close()
 
 
-def day_trade(code, count):
+def day_trade(code, count, is_buy=True):
     logging.basicConfig(level=logging.INFO,
                         filename='./day_trade_log.txt',
                         filemode='a',
@@ -125,7 +125,7 @@ def day_trade(code, count):
                                                    trd_env=TrdEnv.REAL, order_type=OrderType.MARKET)
             set_high(code, 0)
 
-    elif fu.is_buy_trading_time(code) and day_trade_signal(code) == 1:  # 不持有
+    elif is_buy and fu.is_buy_trading_time(code) and day_trade_signal(code) == 1:  # 不持有
         print('buy')
         fu.get_trade_context(code).place_order(price=1, qty=count, code=code, trd_side=TrdSide.BUY, trd_env=TrdEnv.REAL,
                                                order_type=OrderType.MARKET)
