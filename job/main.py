@@ -74,12 +74,18 @@ def apt_job():
         return
     print('do apt_job')
     group_name = '重点'
-    fu.clear_user_security(group_name)
+
     # 取出列表
     ret, data = fu.quote_context.get_user_security('沪深')
     if ret != RET_OK:
         print(data)
         return
+    ret1, data1 = fu.quote_context.get_user_security('港股')
+    if ret1 != RET_OK:
+        print(data1)
+        return
+    data = data.append(data1)
+    print(data)
     resultCode = []
     resultName = []
     resultNew = []
@@ -101,10 +107,11 @@ def apt_job():
                     resultNew.append(getattr(row, 'name'))
         else:
             print('error:', data)
+    fu.clear_user_security(group_name)
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode[::-1])
     if resultNew:
-        tips = '15分钟金叉 \n'
-        dd.trend_bull(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n')
+        tips = '15分钟金叉：'
+        dd.trend_bull(tips + ';'.join(resultNew) + '\n----\n')
 
     resultNameSell = []
     # 取出列表
@@ -126,8 +133,8 @@ def apt_job():
         else:
             print('error:', data)
     if resultNameSell:
-        tips = '15分钟死叉 \n'
-        dd.trend_bear(tips + '\n----\n' + ';'.join(resultNew) + '\n----\n')
+        tips = '15分钟死叉：'
+        dd.trend_bear(tips + ';'.join(resultNameSell) + '\n----\n')
 
 
 apt_job()
