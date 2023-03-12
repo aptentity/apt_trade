@@ -68,23 +68,23 @@ def day_job():
         print("day_job done")
 
 
-def apt_job():
+def apt_job(group_from='操作', group_to='重点', send_msg=1):
     if not fu.is_ch_normal_trading_time():
         print('not trading time')
         return
     print('do apt_job')
-    group_name = '重点'
+    group_name = group_to
 
     # 取出列表
-    ret, data = fu.quote_context.get_user_security('沪深')
+    ret, data = fu.quote_context.get_user_security(group_from)
     if ret != RET_OK:
         print(data)
         return
-    ret1, data1 = fu.quote_context.get_user_security('港股')
-    if ret1 != RET_OK:
-        print(data1)
-        return
-    data = data.append(data1)
+    # ret1, data1 = fu.quote_context.get_user_security('港股')
+    # if ret1 != RET_OK:
+    #     print(data1)
+    #     return
+    # data = data.append(data1)
     print(data)
     resultCode = []
     resultName = []
@@ -110,12 +110,14 @@ def apt_job():
     fu.clear_user_security(group_name)
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode[::-1])
     if resultNew:
-        tips = '15分钟金叉：'
-        dd.trend_bull(tips + ';'.join(resultNew) + '\n----\n')
+        tips = '15分钟金叉：' + ';'.join(resultNew)
+        if send_msg == 1:
+            dd.trend_bull(tips)
+        logging.info(tips)
 
     resultNameSell = []
     # 取出列表
-    ret, data = fu.quote_context.get_user_security('特别关注')
+    ret, data = fu.quote_context.get_user_security(group_from)
     if ret != RET_OK:
         print(data)
         return
@@ -133,12 +135,23 @@ def apt_job():
         else:
             print('error:', data)
     if resultNameSell:
-        tips = '15分钟死叉：'
-        dd.trend_bear(tips + ';'.join(resultNameSell) + '\n----\n')
+        tips = '15分钟死叉：' + ';'.join(resultNameSell)
+        if send_msg == 1:
+            dd.trend_bear(tips)
+        logging.info(tips)
 
 
-apt_job()
-schedule.every(5).minutes.do(apt_job)
+def my_job():
+    apt_job()
+    apt_job('沪深', '重点2', 0)
+
+
+logging.basicConfig(level=logging.INFO,
+                    filename='./main_log.txt',
+                    filemode='a',
+                    format='%(asctime)s - %(filename)s[line:%(lineno)d]: %(message)s')
+my_job()
+schedule.every(5).minutes.do(my_job)
 
 # trend_bear.trend_bear(0)
 # trend_bull.trend_bull(0)
