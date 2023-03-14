@@ -16,6 +16,7 @@ from report import day_report
 from futu import *
 import pandas_ta as ta
 from utils import dingding as dd
+from utils import signal_utils as su
 
 
 def short_job(code=0):
@@ -69,9 +70,6 @@ def day_job():
 
 
 def apt_job(group_from='操作', group_to='重点', send_msg=1):
-    if not fu.is_ch_normal_trading_time():
-        print('not trading time')
-        return
     print('do apt_job')
     group_name = group_to
 
@@ -96,7 +94,7 @@ def apt_job(group_from='操作', group_to='重点', send_msg=1):
         ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
         if ret == RET_OK:
             # print(data)
-            ema20 = ta.ma('ema', data['close'], length=20)
+            ema20 = ta.ma('ema', data['close'], length=10)
             ema30 = ta.ma('ema', data['close'], length=30)
             ema72 = ta.ma('ema', data['close'], length=72)
             base = (ema30 + ema72) / 2
@@ -117,7 +115,7 @@ def apt_job(group_from='操作', group_to='重点', send_msg=1):
 
     resultNameSell = []
     # 取出列表
-    ret, data = fu.quote_context.get_user_security(group_from)
+    ret, data = fu.quote_context.get_user_security('特别关注')
     if ret != RET_OK:
         print(data)
         return
@@ -141,9 +139,42 @@ def apt_job(group_from='操作', group_to='重点', send_msg=1):
         logging.info(tips)
 
 
+def buy_tip():
+    # 取出列表
+    ret, data = fu.quote_context.get_user_security('重点2')
+    resultNameBuy = []
+    resultCode = []
+    group_name = '买点'
+    if ret != RET_OK:
+        print(data)
+        return
+    for row in data.itertuples():
+        code = getattr(row, 'code')
+        fu.quote_context.subscribe(code, SubType.K_15M)
+        ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
+        if ret == RET_OK:
+            result = su.cal_macd(data['close'])
+            if result.iloc[-1] > result.iloc[-2] < result.iloc[-3]:
+                resultNameBuy.append(getattr(row, 'name'))
+                resultCode.append(code)
+        else:
+            print('error:', data)
+
+    fu.clear_user_security(group_name)
+    fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode[::-1])
+    if resultNameBuy:
+        tips = '买入信号：' + ';'.join(resultNameBuy)
+        dd.trend_bull(tips)
+        logging.info(tips)
+
+
 def my_job():
+    if not fu.is_ch_normal_trading_time():
+        print('not trading time')
+        return
     apt_job()
     apt_job('沪深', '重点2', 0)
+    buy_tip()
 
 
 logging.basicConfig(level=logging.INFO,

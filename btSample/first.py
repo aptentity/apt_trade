@@ -9,18 +9,18 @@ import strategy.ThreeEmaCrossSignal as three_ec
 
 # Create a data feed
 modpath = os.path.dirname(os.path.abspath(sys.argv[0]))
-datapath = os.path.join(modpath, 'data/000002.csv')
+datapath = os.path.join(modpath, '../data/SH.000300_day.csv')
 data = bt.feeds.GenericCSVData(
     dataname=datapath,
-    fromdate=datetime(2022, 2, 8),
+    fromdate=datetime(2020, 2, 8),
     todate=datetime(2023, 2, 7),
-    dtformat='%Y-%m-%d',
-    datetime=1,
-    open=6,
-    high=4,
-    low=5,
-    close=2,
-    volume=3,
+    dtformat='%Y-%m-%d %H:%M:%S',
+    datetime=2,
+    open=3,
+    high=5,
+    low=6,
+    close=4,
+    volume=9,
     reverse=False)
 
 # 实例化回测系统，Cerebro翻译为大脑，回测系统是整个backtrader控制中枢
@@ -30,7 +30,7 @@ cerebro = bt.Cerebro()
 cerebro.broker.setcash(100000)
 # 佣金
 cerebro.broker.setcommission(commission=0.002)
-cerebro.addsizer(bt.sizers.FixedSizeTarget, stake=5000)
+cerebro.addsizer(bt.sizers.FixedSizeTarget, stake=10)
 # 滑点：双边各 0.0001
 cerebro.broker.set_slippage_perc(perc=0.001)
 # Add the data feed
