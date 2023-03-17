@@ -104,3 +104,4 @@ def get_3m_and_save(code='', start='2021-01-01', end='2023-03-11'):
 # get_3m_and_save('HK.07552')
 # get_day_and_save('SZ.300759')
 get_day_and_save('SH.000300', start='2005-01-01')
+get_15m_and_save('HK.03032')

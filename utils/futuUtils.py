@@ -44,10 +44,10 @@ def is_ch_normal_trading_time():
     if market_state == MarketState.MORNING or \
             market_state == MarketState.AFTERNOON:
         return True
-    market_state = data['market_state'][1]
-    if market_state == MarketState.MORNING or \
-            market_state == MarketState.AFTERNOON:
-        return True
+    # market_state = data['market_state'][1]
+    # if market_state == MarketState.MORNING or \
+    #         market_state == MarketState.AFTERNOON:
+    #     return True
     return False
 
 

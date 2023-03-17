@@ -1,15 +1,9 @@
-import day_bear
-import day_bull
 import filter_stock
-import select_plate
 import short_bear
 import short_bull
 import trade_notice
 import trend_bear
 import trend_bull
-import week_bear
-import week_bull
-import time
 import schedule
 from utils import futuUtils as fu
 from report import day_report
@@ -17,6 +11,7 @@ from futu import *
 import pandas_ta as ta
 from utils import dingding as dd
 from utils import signal_utils as su
+import select_plate
 
 
 def short_job(code=0):
@@ -47,8 +42,9 @@ def short_job(code=0):
 
 def day_job():
     try:
-        filter_stock.filter_base()
-        day_report.day_report()
+        select_plate.select_plate()
+        # filter_stock.filter_base()
+        # day_report.day_report()
         # trend_bull.trend_bull(0)
         # time.sleep(10)
         # trend_bear.trend_bear(0)
@@ -69,7 +65,7 @@ def day_job():
         print("day_job done")
 
 
-def apt_job(group_from='操作', group_to='重点', send_msg=1):
+def apt_job(group_from='重点', group_to='操作', send_msg=1):
     print('do apt_job')
     group_name = group_to
 
@@ -99,17 +95,30 @@ def apt_job(group_from='操作', group_to='重点', send_msg=1):
             ema72 = ta.ma('ema', data['close'], length=72)
             base = (ema30 + ema72) / 2
             if ema20.iloc[-1] > base.iloc[-1]:
-                resultName.append(getattr(row, 'name'))
-                resultCode.append(code)
                 if ema20.iloc[-2] < base.iloc[-2]:
                     resultNew.append(getattr(row, 'name'))
+                # 判断日线
+                fu.quote_context.subscribe(code, SubType.K_DAY)
+                ret, data = fu.quote_context.get_cur_kline(code, 200, SubType.K_DAY)
+                if ret == RET_OK:
+                    result = su.cal_macd(data['close'])
+                    amount = 0
+                    for i in range(0, 2):
+                        if result.iloc[(-1 - i)] > result.iloc[(-2 - i)]:
+                            amount = amount + 1
+                    if amount > 0 and min(result.iloc[-1], result.iloc[-2], result.iloc[-3]) < 0:
+                        resultName.append(getattr(row, 'name'))
+                        resultCode.append(code)
+                else:
+                    print('get day kline error:', data)
+
         else:
-            print('error:', data)
+            print(code, 'error:', data)
     fu.clear_user_security(group_name)
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode[::-1])
     if resultNew:
         tips = '15分钟金叉：' + ';'.join(resultNew)
-        if send_msg == 1:
+        if send_msg == 1 and fu.is_ch_normal_trading_time():
             dd.trend_bull(tips)
         logging.info(tips)
 
@@ -124,24 +133,24 @@ def apt_job(group_from='操作', group_to='重点', send_msg=1):
         fu.quote_context.subscribe(code, SubType.K_15M)
         ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
         if ret == RET_OK:
-            ema20 = ta.ma('ema', data['close'], length=20)
+            ema20 = ta.ma('ema', data['close'], length=10)
             ema30 = ta.ma('ema', data['close'], length=30)
             ema72 = ta.ma('ema', data['close'], length=72)
             base = (ema30 + ema72) / 2
             if ema20.iloc[-1] < base.iloc[-1] and ema20.iloc[-2] > base.iloc[-2]:
                 resultNameSell.append(getattr(row, 'name'))
         else:
-            print('error:', data)
+            print('error:', data, code)
     if resultNameSell:
         tips = '15分钟死叉：' + ';'.join(resultNameSell)
-        if send_msg == 1:
+        if send_msg == 1 and fu.is_ch_normal_trading_time():
             dd.trend_bear(tips)
         logging.info(tips)
 
 
 def buy_tip():
     # 取出列表
-    ret, data = fu.quote_context.get_user_security('重点2')
+    ret, data = fu.quote_context.get_user_security('操作')
     resultNameBuy = []
     resultCode = []
     group_name = '买点'
@@ -154,7 +163,8 @@ def buy_tip():
         ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
         if ret == RET_OK:
             result = su.cal_macd(data['close'])
-            if result.iloc[-1] > result.iloc[-2] < result.iloc[-3]:
+            if (result.iloc[-1] > result.iloc[-2] < result.iloc[-3] and result.iloc[-2] > 0) or (
+                    result.iloc[-3] < 0 and result.iloc[-1] > result.iloc[-2] > result.iloc[-3] < result.iloc[-4]):
                 resultNameBuy.append(getattr(row, 'name'))
                 resultCode.append(code)
         else:
@@ -162,19 +172,51 @@ def buy_tip():
 
     fu.clear_user_security(group_name)
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode[::-1])
-    if resultNameBuy:
+    if resultNameBuy and fu.is_ch_normal_trading_time():
         tips = '买入信号：' + ';'.join(resultNameBuy)
         dd.trend_bull(tips)
         logging.info(tips)
 
 
-def my_job():
-    if not fu.is_ch_normal_trading_time():
-        print('not trading time')
+def sell_tip():
+    # 取出列表
+    ret, data = fu.quote_context.get_user_security('特别关注')
+    resultNameSell = []
+    resultCode = []
+    group_name = '卖点'
+    if ret != RET_OK:
+        print(data)
         return
+    for row in data.itertuples():
+        code = getattr(row, 'code')
+        fu.quote_context.subscribe(code, SubType.K_15M)
+        ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
+        if ret == RET_OK:
+            ema20 = ta.ma('ema', data['close'], length=10)
+            ema30 = ta.ma('ema', data['close'], length=30)
+            ema72 = ta.ma('ema', data['close'], length=72)
+            base = (ema30 + ema72) / 2
+            if ema20.iloc[-1] < base.iloc[-1]:
+                result = su.cal_macd(data['close'])
+                if result.iloc[-3] > 0 and result.iloc[-1] < result.iloc[-2] < result.iloc[-3] > result.iloc[-4]:
+                    resultNameSell.append(getattr(row, 'name'))
+                    resultCode.append(code)
+        else:
+            print('error:', data)
+
+    fu.clear_user_security(group_name)
+    fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode[::-1])
+    if resultNameSell and fu.is_ch_normal_trading_time():
+        tips = '卖出信号：' + ';'.join(resultNameSell)
+        dd.trend_bear(tips)
+        logging.info(tips)
+
+
+def my_job():
     apt_job()
-    apt_job('沪深', '重点2', 0)
+    # apt_job('沪深', '重点2', 0)
     buy_tip()
+    sell_tip()
 
 
 logging.basicConfig(level=logging.INFO,
@@ -182,57 +224,11 @@ logging.basicConfig(level=logging.INFO,
                     filemode='a',
                     format='%(asctime)s - %(filename)s[line:%(lineno)d]: %(message)s')
 my_job()
+# select_plate.select_plate()
 schedule.every(5).minutes.do(my_job)
-
-# trend_bear.trend_bear(0)
-# trend_bull.trend_bull(0)
-# short_job(1)
-# day_job()
-# schedule.every(5).minutes.do(short_job)
-# schedule.every().day.at("14:40").do(day_job)
+schedule.every().day.at("14:45").do(day_job)
 
 while True:
     print("while")
     schedule.run_pending()
     time.sleep(5)
-
-#
-
-
-# fu.unlock_trade()
-
-# fu.is_normal_trading_time('HK.07226')
-
-# fu.get_holding_position('US.SOXL')
-
-# print(fu.get_ask_and_bid('US.SOXL'))
-# quote_ctx = OpenQuoteContext(host='127.0.0.1', port=11111)  # 创建行情对象
-# print(quote_ctx.get_market_snapshot('HK.00700'))  # 获取港股 HK.00700 的快照数据
-# quote_ctx.close() # 关闭对象，防止连接条数用尽
-#
-#
-# trd_ctx = OpenSecTradeContext(host='127.0.0.1', port=11111)  # 创建交易对象
-# print(trd_ctx.place_order(price=500.0, qty=100, code="HK.00700", trd_side=TrdSide.BUY, trd_env=TrdEnv.SIMULATE))  # 模拟交易，下单（如果是真实环境交易，在此之前需要先解锁交易密码）
-#
-# trd_ctx.close()  # 关闭对象，防止连接条数用尽
-
-# ret, data = fu.quote_context.get_user_security_group()
-# if ret == RET_OK:
-#     print(data)
-
-# ret, data = fu.quote_context.get_user_security('沪深')
-# if ret == RET_OK:
-#     print(data)
-#
-# print(data.iloc[0, 0])
-#
-# for row in data.itertuples():
-#     print(row[1])
-
-# fu.quote_context.subscribe(data.iloc[0, 0], SubType.K_15M)
-# ret, data = fu.quote_context.get_cur_kline(data.iloc[0, 0], 1000, SubType.K_15M)
-# if ret == RET_OK:
-#     print('111111111')
-#     print(data)
-# else:
-#     print('error:', data)
