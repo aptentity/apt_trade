@@ -39,3 +39,60 @@ def macd_king_cross(close):
     if result.iloc[-1] > 0 > result.iloc[-2]:
         return True
     return False
+
+
+def ema_king_cross(close):
+    ema10 = get_EMA(close, 10)
+    ema30 = get_EMA(close, 30)
+    ema72 = get_EMA(close, 72)
+    base = (ema30 + ema72) / 2
+    return ema10.iloc[-1] > base.iloc[-1] and ema10.iloc[-2] < base.iloc[-2]
+
+
+def ema_death_cross(close):
+    ema10 = get_EMA(close, 10)
+    ema30 = get_EMA(close, 30)
+    ema72 = get_EMA(close, 72)
+    base = (ema30 + ema72) / 2
+    return ema10.iloc[-1] < base.iloc[-1] and ema10.iloc[-2] > base.iloc[-2]
+
+
+def ema_above_base(close):
+    ema10 = get_EMA(close, 10)
+    ema30 = get_EMA(close, 30)
+    ema72 = get_EMA(close, 72)
+    base = (ema30 + ema72) / 2
+    return ema10.iloc[-1] > base.iloc[-1]
+
+
+def ema_below_base(close):
+    ema10 = get_EMA(close, 10)
+    ema30 = get_EMA(close, 30)
+    ema72 = get_EMA(close, 72)
+    base = (ema30 + ema72) / 2
+    return ema10.iloc[-1] < base.iloc[-1]
+
+
+# 趋势底部
+def qushi_dibu(close):
+    ema10 = get_EMA(close, 10)
+    ema30 = get_EMA(close, 30)
+    ema72 = get_EMA(close, 72)
+    base = (ema30 + ema72) / 2
+    count = 0
+    for i in range(0, 5):
+        if base.iloc[-1 - i] > ema10.iloc[-1 - i]:
+            count = count + 1
+    if count < 3:
+        result = cal_macd(close)
+        if result.iloc[-1] > result.iloc[-2] and result.iloc[-2] < 0:
+            return True
+    return False
+
+
+# 超跌
+def chaodie(close, low):
+    ema30 = get_EMA(close, 30)
+    ema72 = get_EMA(close, 72)
+    base = (ema30 + ema72) / 2
+    return low.iloc[-1] < base.iloc[-1] * 0.8

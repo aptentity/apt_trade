@@ -161,6 +161,10 @@ def get_ask_and_bid(code):
     return data['Ask'][0][0], data['Bid'][0][0]
 
 
+def add_user_security(group_name, code_list):
+    quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, code_list)
+
+
 # 清空分组中股票
 def clear_user_security(group_name):
     ret, data = quote_context.get_user_security(group_name)
@@ -188,3 +192,11 @@ def get_trade_context(code):
         return trade_us_context
     if "HK" in code:
         return trade_context
+
+
+def query_subscription():
+    ret, data = quote_context.query_subscription()
+    if ret == RET_OK:
+        print(data)
+    else:
+        print('error:', data)
