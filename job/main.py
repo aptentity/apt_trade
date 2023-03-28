@@ -2,11 +2,13 @@ import schedule
 from futu import *
 import select_plate
 import stock_filter
+import second_wave
 
 
 def day_job():
     try:
         select_plate.select_plate()
+        stock_filter.select_stock_in_plate()
     finally:
         print("day_job done")
 
@@ -22,6 +24,8 @@ def short_job():
 def long_job():
     stock_filter.select_my()
     stock_filter.select_focus()
+    second_wave.stock_second_wave()
+    second_wave.plate_second_wave()
 
 
 logging.basicConfig(level=logging.INFO,

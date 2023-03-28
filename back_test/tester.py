@@ -8,15 +8,17 @@ from strategy import ema_cross
 from strategy import three_ema_cross
 from strategy import three_ema_cross_signal
 from strategy import ema_cross_improve1
+from strategy import fix_time
+from strategy import macd_cross
 
 # SH.600702  HK.07552  HK.07226
 # SZ.300759
 #
-name = 'HK.03032'
-file_name = name + '_15m.csv'
-from_date = datetime(2020, 1, 1)
-to_date = datetime(2023, 3, 12)
-strategy = ema_cross.EmaCross
+name = 'SZ.159949'
+file_name = name + '_day.csv'
+from_date = datetime(2016, 10, 1)
+to_date = datetime(2021, 10, 1)
+strategy = macd_cross.MACDCross
 
 logging.basicConfig(level=logging.INFO,
                     filename='tester_log.txt',
@@ -53,7 +55,7 @@ cerebro.broker.setcash(1000000)
 cerebro.broker.setcommission(commission=0.002)
 cerebro.addsizer(bt.sizers.FixedSizeTarget, stake=20000)
 # 滑点：双边各 0.0001
-cerebro.broker.set_slippage_perc(perc=0.001)
+cerebro.broker.set_slippage_perc(perc=0.002)
 # Add the data feed
 cerebro.adddata(data, name=name)
 # Add the trading strategy
@@ -97,4 +99,4 @@ logging.info('=========================================')
 logging.info('=========================================')
 
 # cerebro.plot()  # and plot it with a single command
-# cerebro.plot(iplot=False, style='candel')
+cerebro.plot(iplot=False, style='candel')

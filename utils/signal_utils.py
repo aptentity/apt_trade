@@ -92,7 +92,23 @@ def qushi_dibu(close):
 
 # 超跌
 def chaodie(close, low):
-    ema30 = get_EMA(close, 30)
-    ema72 = get_EMA(close, 72)
-    base = (ema30 + ema72) / 2
-    return low.iloc[-1] < base.iloc[-1] * 0.8
+    ema20 = get_EMA(close, 20)
+    return low.iloc[-1] < ema20.iloc[-1] * 0.8
+
+
+# count天内出现超卖
+def over_sold(close, low, count=1):
+    ema20 = get_EMA(close, 20)
+    for i in range(count):
+        if low.iloc[-1 - i] < ema20.iloc[-1 - i] * 0.8:
+            return True
+    return False
+
+
+# count天内出现超买
+def over_bought(close, high, count=1):
+    ema20 = get_EMA(close, 20)
+    for i in range(count):
+        if high.iloc[-1 - i] > ema20.iloc[-1 - i] * 1.2:
+            return True
+    return False

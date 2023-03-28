@@ -27,7 +27,7 @@ def get_week_and_save(code='', start='2021-01-01', end='2023-03-11'):
 
 
 # 获取15分钟数据并保存
-def get_day_and_save(code='', start='2020-01-01', end='2023-03-11'):
+def get_day_and_save(code='', start='2020-01-01', end='2023-12-30'):
     ret, data, page_req_key = fu.quote_context.request_history_kline(code, ktype=KLType.K_DAY, start=start, end=end)
     if ret == RET_OK:
         print(data)
@@ -50,7 +50,7 @@ def get_day_and_save(code='', start='2020-01-01', end='2023-03-11'):
 
 
 # 获取15分钟数据并保存
-def get_15m_and_save(code='', start='2021-01-01', end='2023-03-11'):
+def get_15m_and_save(code='', start='2020-01-01', end='2023-03-23'):
     ret, data, page_req_key = fu.quote_context.request_history_kline(code, ktype=KLType.K_15M, start=start, end=end)
     if ret == RET_OK:
         print(data)
@@ -95,13 +95,12 @@ def get_3m_and_save(code='', start='2021-01-01', end='2023-03-11'):
     data.to_csv('../data/' + code + '_3m.csv', encoding='utf-8-sig')
 
 
-# get_15m_and_save('HK.07226')  # 两倍看多恒生科技
-# get_day_and_save('HK.07226')
-# get_week_and_save('HK.07226')
-# get_15m_and_save('HK.07552')  # 两倍看空恒生科技
-# get_15m_and_save('SZ.300759')  # 康龙化成
-# get_15m_and_save('SH.600702')  # 舍得酒业
-# get_3m_and_save('HK.07552')
-# get_day_and_save('SZ.300759')
-get_day_and_save('SH.000300', start='2005-01-01')
-get_15m_and_save('HK.03032')
+# 两倍看多恒生科技：HK.07226
+# 两倍看空恒生科技：HK.07552
+# 恒生科技：HK.HTImain
+# 康龙化成：SZ.300759
+# 舍得酒业：SH.600702
+# 创业板50：SZ.159949
+# 科创板50：SH.588000
+
+get_day_and_save('SZ.159949', start='2016-01-01')

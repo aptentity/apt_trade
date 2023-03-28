@@ -223,3 +223,30 @@ def overfall():
         print('overfall:', selectName)
         print('overfall_day:', selectDayName)
 
+
+def is_in_trend(code):
+    fu.quote_context.subscribe(code, SubType.K_WEEK)
+    ret, data = fu.quote_context.get_cur_kline(code, 200, SubType.K_WEEK)
+    return ret == RET_OK and su.qushi_dibu(data['close'])
+
+
+def select_stock_in_plate():
+    plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673']
+    selectName = []
+    selectCode = []
+
+    for plate in plate_list:
+        ret, data = fu.quote_context.get_plate_stock(plate)
+        if ret == RET_OK:
+            for row in data.itertuples():
+                if is_in_trend(getattr(row, 'code')):
+                    selectCode.append(getattr(row, 'code'))
+                    selectName.append(getattr(row, 'stock_name'))
+        print(plate)
+        print(selectName)
+        time.sleep(60)
+        fu.quote_context.unsubscribe_all()
+    fu.quote_context.modify_user_security("重点", ModifyUserSecurityOp.ADD, selectCode[::-1])
+
+
+# select_test()
