@@ -10,6 +10,7 @@ from utils import futuUtils as fu
 from futu import *
 from utils import signal_utils as su
 from utils import dingding as dd
+import pandas as pd
 
 
 # 沪深->自选
@@ -194,7 +195,7 @@ def overfall():
     selectCode = []
     selectDayName = []
     selectDayCode = []
-    group_name = "超跌"
+    group_name = "超"
     ret, data = fu.quote_context.get_user_security("全部")
     if ret == RET_OK:
         for row in data.itertuples():
@@ -227,26 +228,66 @@ def overfall():
 def is_in_trend(code):
     fu.quote_context.subscribe(code, SubType.K_WEEK)
     ret, data = fu.quote_context.get_cur_kline(code, 200, SubType.K_WEEK)
+    if ret != RET_OK:
+        print(data)
     return ret == RET_OK and su.qushi_dibu(data['close'])
 
 
 def select_stock_in_plate():
-    plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673']
+    plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673', 'SH.BK0932', 'SH.BK0068', 'SH.BK0092', 'SH.BK0350',
+                  'SH.BK0652', 'SH.000807', 'SH.BK0637', 'SH.000069', 'SH.000126', 'SZ.399364']
+    # plate_list = ['SH.BK0800']
     selectName = []
     selectCode = []
-
+    count = 0
+    fu.quote_context.unsubscribe_all()
     for plate in plate_list:
         ret, data = fu.quote_context.get_plate_stock(plate)
         if ret == RET_OK:
+            print(len(data))
             for row in data.itertuples():
+                count = count + 1
+                print(getattr(row, 'code'))
                 if is_in_trend(getattr(row, 'code')):
                     selectCode.append(getattr(row, 'code'))
                     selectName.append(getattr(row, 'stock_name'))
+                if count % 300 == 0:
+                    count = 0
+                    time.sleep(60)
+                    fu.quote_context.unsubscribe_all()
+
         print(plate)
         print(selectName)
-        time.sleep(60)
-        fu.quote_context.unsubscribe_all()
     fu.quote_context.modify_user_security("重点", ModifyUserSecurityOp.ADD, selectCode[::-1])
 
 
-# select_test()
+# 选择回踩低点的，区间震荡股票
+def select_stock_in_interval():
+    selectName = []
+    selectCode = []
+    ret, data = fu.quote_context.get_user_security('沪深')
+    if ret == RET_OK:
+        for row in data.itertuples():
+            code = getattr(row, 'code')
+            print(code)
+            fu.quote_context.subscribe(code, SubType.K_WEEK)
+            ret, data = fu.quote_context.get_cur_kline(code, 100, SubType.K_WEEK)
+            if ret == RET_OK and len(data) > 90:
+                print(min(data['low'][50:90]))
+                min_low = min(data['low'][50:90])
+                if abs((data['low'].iloc[-1] - min_low) / min_low) < 0.1:
+                    selectCode.append(getattr(row, 'code'))
+                    selectName.append(getattr(row, 'name'))
+        fu.quote_context.modify_user_security('前低', ModifyUserSecurityOp.ADD, selectCode[::-1])
+
+
+# ret, data = fu.quote_context.get_plate_stock('SH.BK0637')
+# print(data)
+
+# ret, data1 = fu.quote_context.get_plate_stock('SH.000069')
+# ret, data2 = fu.quote_context.get_plate_stock('SH.000126')
+# ret, data3 = fu.quote_context.get_plate_stock('SZ.399364')
+# result = pd.concat([data1, data2, data3], ignore_index=True)
+# result = result.drop_duplicates(subset=['code'])
+# print(result)
+

@@ -7,8 +7,7 @@ import second_wave
 
 def day_job():
     try:
-        select_plate.select_plate()
-        stock_filter.select_stock_in_plate()
+        stock_filter.overfall()
     finally:
         print("day_job done")
 
@@ -19,6 +18,7 @@ def short_job():
     stock_filter.ema_death_cross_tip()
     stock_filter.buy_tip()
     stock_filter.sell_tip()
+    print("short_job done")
 
 
 def long_job():
@@ -26,6 +26,7 @@ def long_job():
     stock_filter.select_focus()
     second_wave.stock_second_wave()
     second_wave.plate_second_wave()
+    print('long_job done')
 
 
 logging.basicConfig(level=logging.INFO,
@@ -39,6 +40,5 @@ schedule.every(10).minutes.do(short_job)
 schedule.every().day.at("14:45").do(day_job)
 
 while True:
-    print("while")
     schedule.run_pending()
     time.sleep(10)
