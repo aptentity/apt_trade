@@ -134,7 +134,7 @@ def ema_death_cross_tip():
 
 def buy_tip():
     # 取出列表
-    ret, data = fu.quote_context.get_user_security('操作')
+    ret, data = fu.quote_context.get_user_security('多')
     resultNameBuy = []
     resultCode = []
     group_name = '买点'
@@ -156,15 +156,16 @@ def buy_tip():
 
     fu.clear_user_security(group_name)
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode[::-1])
+    tips = '买入信号：' + ';'.join(resultNameBuy)
+    print(tips)
+    logging.info(tips)
     if resultNameBuy and fu.is_ch_normal_trading_time():
-        tips = '买入信号：' + ';'.join(resultNameBuy)
-        dd.trend_bull(tips)
-        logging.info(tips)
+        dd.send_notice(tips)
 
 
 def sell_tip():
     # 取出列表
-    ret, data = fu.quote_context.get_user_security('特别关注')
+    ret, data = fu.quote_context.get_user_security('空')
     resultNameSell = []
     resultCode = []
     group_name = '卖点'
@@ -180,13 +181,13 @@ def sell_tip():
             if result.iloc[-3] > 0 and result.iloc[-1] < result.iloc[-2] < result.iloc[-3] > result.iloc[-4]:
                 resultNameSell.append(getattr(row, 'name'))
                 resultCode.append(code)
-
     fu.clear_user_security(group_name)
     fu.quote_context.modify_user_security(group_name, ModifyUserSecurityOp.ADD, resultCode[::-1])
+    tips = '卖出信号：' + ';'.join(resultNameSell)
+    print(tips)
+    logging.info(tips)
     if resultNameSell and fu.is_ch_normal_trading_time():
-        tips = '卖出信号：' + ';'.join(resultNameSell)
-        dd.trend_bear(tips)
-        logging.info(tips)
+        dd.send_notice(tips)
 
 
 # 超跌
@@ -233,9 +234,11 @@ def is_in_trend(code):
     return ret == RET_OK and su.qushi_dibu(data['close'])
 
 
-def select_stock_in_plate():
-    plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673', 'SH.BK0932', 'SH.BK0068', 'SH.BK0092', 'SH.BK0350',
-                  'SH.BK0652', 'SH.000807', 'SH.BK0637', 'SH.000069', 'SH.000126', 'SZ.399364']
+def select_stock_in_plate(plate_list=None):
+    if plate_list is None:
+        plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673']
+        # , 'SH.BK0932', 'SH.BK0068', 'SH.BK0092', 'SH.BK0350',
+        #           'SH.BK0652', 'SH.000807', 'SH.BK0637', 'SH.000069', 'SH.000126', 'SZ.399364']
     # plate_list = ['SH.BK0800']
     selectName = []
     selectCode = []
@@ -281,6 +284,48 @@ def select_stock_in_interval():
         fu.quote_context.modify_user_security('前低', ModifyUserSecurityOp.ADD, selectCode[::-1])
 
 
+def is_in_day_trend(code):
+    fu.quote_context.subscribe(code, SubType.K_DAY)
+    ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_DAY)
+    if ret == RET_OK:
+        return su.over_bought(data['close'], data['high'], 50) and su.macd_king_cross(data['close'])
+    else:
+        print(code, data)
+        return False
+
+
+def select_stock_day_trend(plate_list=None):
+    if plate_list is None:
+        plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673']
+
+    selectName = []
+    selectCode = []
+    count = 0
+    fu.quote_context.unsubscribe_all()
+    for plate in plate_list:
+        ret, data = fu.quote_context.get_plate_stock(plate)
+        if ret == RET_OK:
+            print(len(data))
+            for row in data.itertuples():
+                count = count + 1
+                print(getattr(row, 'code'))
+                if is_in_day_trend(getattr(row, 'code')):
+                    selectCode.append(getattr(row, 'code'))
+                    selectName.append(getattr(row, 'stock_name'))
+                if count % 300 == 0:
+                    print(selectName)
+                    count = 0
+                    time.sleep(60)
+                    fu.quote_context.unsubscribe_all()
+        print(plate)
+        print(selectName)
+    fu.quote_context.modify_user_security("重点", ModifyUserSecurityOp.ADD, selectCode[::-1])
+    print('select_stock_day_trend done')
+
+
+# select_stock_day_trend()
+# select_stock_in_plate(['SH.BK0594'])
+
 # ret, data = fu.quote_context.get_plate_stock('SH.BK0637')
 # print(data)
 
@@ -291,3 +336,84 @@ def select_stock_in_interval():
 # result = result.drop_duplicates(subset=['code'])
 # print(result)
 
+
+def select_up_and_down():
+    ret, data = fu.quote_context.get_user_security("沪深")
+    king_cross_name = []
+    death_cross_name = []
+    up_code = []
+    down_code = []
+    if ret == RET_OK:
+        for row in data.itertuples():
+            code = getattr(row, 'code')
+            fu.quote_context.subscribe(code, SubType.K_15M)
+            ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
+            if ret == RET_OK:
+                if su.ema_above_base(data['close']):
+                    up_code.append(code)
+                else:
+                    down_code.append(code)
+                if su.ema_king_cross(data['close']):
+                    king_cross_name.append(getattr(row, 'name'))
+                elif su.ema_death_cross(data['close']):
+                    death_cross_name.append(getattr(row, 'name'))
+
+    fu.quote_context.modify_user_security('多', ModifyUserSecurityOp.MOVE_OUT, down_code)
+    fu.quote_context.modify_user_security('空', ModifyUserSecurityOp.MOVE_OUT, up_code)
+    fu.quote_context.modify_user_security('多', ModifyUserSecurityOp.ADD, up_code[::-1])
+    fu.quote_context.modify_user_security('空', ModifyUserSecurityOp.ADD, down_code[::-1])
+    if fu.is_ch_normal_trading_time() and (king_cross_name or death_cross_name):
+        tips = '15分钟金叉：' + ';'.join(king_cross_name) + '\n' + '15分钟死叉：' + ';'.join(death_cross_name)
+        dd.send_notice(tips)
+
+
+def select_etf():
+    etf = pd.read_csv('etf_new.csv')
+    selectName = []
+    selectCode = []
+    select_day_code = []
+    select_day_name = []
+
+    chaodie = []
+    for item in etf.itertuples():
+        code = str(getattr(item, 'code'))
+        if not code.__contains__('.'):
+            new_code = 'SH.' + code if code.startswith('5') else 'SZ.' + code
+        else:
+            new_code = code
+        fu.quote_context.subscribe(new_code, SubType.K_WEEK)
+        ret, data = fu.quote_context.get_cur_kline(new_code, 200, SubType.K_WEEK)
+        if ret != RET_OK:
+            print(code, data)
+        else:
+            # 超跌
+            if su.chaodie(data['close'], data['low']):
+                chaodie.append(new_code)
+
+            # 周线向上
+            if su.macd_up(data['close']):
+                selectCode.append(new_code)
+                selectName.append(getattr(item, 'name'))
+
+            if su.ema_above_base(data['close']):
+                print(new_code, getattr(item, 'name'))
+                fu.quote_context.subscribe(new_code, SubType.K_DAY)
+                ret1, data1 = fu.quote_context.get_cur_kline(new_code, 1000, SubType.K_DAY)
+                if ret != RET_OK:
+                    print(code, data)
+                elif su.macd_up(data1['close']):
+                    select_day_code.append(new_code)
+                    selectName.append(getattr(item, 'name'))
+
+    print('chaodie', chaodie)
+    print('selectCode', selectCode)
+    print('selectName', selectName)
+    print('select_day_code:', select_day_code)
+    print('select_day_name:', select_day_name)
+
+    fu.quote_context.modify_user_security('多', ModifyUserSecurityOp.ADD, chaodie[::-1])
+    fu.quote_context.modify_user_security('多', ModifyUserSecurityOp.ADD, selectCode[::-1])
+    fu.quote_context.modify_user_security('多', ModifyUserSecurityOp.ADD, select_day_code[::-1])
+
+
+select_etf()

@@ -27,6 +27,13 @@ def macd_down(close):
     return False
 
 
+def macd_up(close):
+    result = cal_macd(close)
+    if len(result) < 4:
+        return False
+    return result.iloc[-1] > result.iloc[-2] > result.iloc[-3] < result.iloc[-4] and result.iloc[-3] < 0
+
+
 def macd_death_cross(close):
     result = cal_macd(close)
     if result.iloc[-1] < 0 < result.iloc[-2]:
@@ -72,8 +79,9 @@ def ema_below_base(close):
     base = (ema30 + ema72) / 2
     return ema10.iloc[-1] < base.iloc[-1]
 
+    # 趋势底部
 
-# 趋势底部
+
 def qushi_dibu(close):
     ema10 = get_EMA(close, 10)
     ema30 = get_EMA(close, 30)
@@ -89,14 +97,16 @@ def qushi_dibu(close):
             return True
     return False
 
+    # 超跌
 
-# 超跌
+
 def chaodie(close, low):
     ema20 = get_EMA(close, 20)
     return low.iloc[-1] < ema20.iloc[-1] * 0.8
 
+    # count天内出现超卖
 
-# count天内出现超卖
+
 def over_sold(close, low, count=1):
     ema20 = get_EMA(close, 20)
     for i in range(count):
@@ -104,8 +114,9 @@ def over_sold(close, low, count=1):
             return True
     return False
 
+    # count天内出现超买
 
-# count天内出现超买
+
 def over_bought(close, high, count=1):
     ema20 = get_EMA(close, 20)
     for i in range(count):

@@ -40,7 +40,6 @@ def is_ch_normal_trading_time():
         print('获取市场状态失败：', data)
         return False
     market_state = data['market_state'][0]
-    print(data['market_state'])
     if market_state == MarketState.MORNING or \
             market_state == MarketState.AFTERNOON:
         return True

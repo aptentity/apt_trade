@@ -3,8 +3,31 @@ from futu import *
 import pandas as pd
 
 
+# 获取月数据并保存
+def get_month_and_save(code='', start='2000-01-01', end='2024-04-11'):
+    ret, data, page_req_key = fu.quote_context.request_history_kline(code, ktype=KLType.K_MON, start=start, end=end)
+    if ret == RET_OK:
+        print(data)
+        print(type(data))
+    else:
+        print('error:', data)
+
+    while page_req_key is not None:  # 请求后面的所有结果
+        print('*************************************')
+        ret, data1, page_req_key = fu.quote_context.request_history_kline(code, ktype=KLType.K_MON, start=start,
+                                                                          end=end,
+                                                                          page_req_key=page_req_key)
+        if ret == RET_OK:
+            print(data1)
+            data = pd.concat([data, data1], axis=0, ignore_index=True)
+        else:
+            print('error:', data)
+
+    data.to_csv('../data/' + code + '_mon.csv', encoding='utf-8-sig')
+
+
 # 获取15分钟数据并保存
-def get_week_and_save(code='', start='2021-01-01', end='2023-03-11'):
+def get_week_and_save(code='', start='2000-01-01', end='2024-04-11'):
     ret, data, page_req_key = fu.quote_context.request_history_kline(code, ktype=KLType.K_WEEK, start=start, end=end)
     if ret == RET_OK:
         print(data)
@@ -103,4 +126,4 @@ def get_3m_and_save(code='', start='2021-01-01', end='2023-03-11'):
 # 创业板50：SZ.159949
 # 科创板50：SH.588000
 
-get_day_and_save('SZ.159949', start='2016-01-01')
+get_month_and_save('SH.000001', start='2000-01-01', end='2024-01-01')
