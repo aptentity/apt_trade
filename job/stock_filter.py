@@ -368,7 +368,7 @@ def select_up_and_down():
 
 
 def select_etf():
-    etf = pd.read_csv('etf_new.csv')
+    etf = pd.read_csv('./object/etf_new.csv')
     selectName = []
     selectCode = []
     select_day_code = []
@@ -411,9 +411,84 @@ def select_etf():
     print('select_day_code:', select_day_code)
     print('select_day_name:', select_day_name)
 
-    fu.quote_context.modify_user_security('多', ModifyUserSecurityOp.ADD, chaodie[::-1])
-    fu.quote_context.modify_user_security('多', ModifyUserSecurityOp.ADD, selectCode[::-1])
-    fu.quote_context.modify_user_security('多', ModifyUserSecurityOp.ADD, select_day_code[::-1])
+    fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, chaodie[::-1])
+    fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, selectCode[::-1])
+    fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, select_day_code[::-1])
 
 
-select_etf()
+# 周线和日线均良好
+def is_in_week_day_trend(code):
+    fu.quote_context.subscribe(code, SubType.K_WEEK)
+    ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_WEEK)
+    if ret != RET_OK:
+        print(code, data)
+    elif su.ema_above_base(data['close']):
+        fu.quote_context.subscribe(code, SubType.K_DAY)
+        ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_DAY)
+        if ret != RET_OK:
+            print(code, data)
+        elif su.ema_above_base2(data['close'], day=5) and su.macd_up(data['close']):
+            if data['close'].iloc[-1] / data['open'].iloc[-1] < 1.05 and data['close'].iloc[-1] / data['open'].iloc[
+                -3] < 1.12:
+                return True
+    return False
+
+
+def select_object_in_trend():
+    def check_length():
+        if len(allCode) % 150 == 0:
+            print(allCode)
+            print(len(allCode))
+            time.sleep(60)
+            fu.quote_context.unsubscribe_all()
+
+    allCode = []
+    selectName = []
+    selectCode = []
+    ret, data = fu.quote_context.get_user_security("沪深")
+    if ret == RET_OK:
+        for row in data.itertuples():
+            code = getattr(row, 'code')
+            allCode.append(code)
+            check_length()
+            if is_in_week_day_trend(getattr(row, 'code')):
+                selectCode.append(getattr(row, 'code'))
+                selectName.append(getattr(row, 'name'))
+
+    etf = pd.read_csv('../object/etf_new.csv')
+    stock = pd.read_csv('../object/stock.csv')
+    stock_low = pd.read_csv('../object/stock_low.csv')
+    new_list = pd.concat([etf, stock, stock_low])
+    for row in new_list.itertuples():
+        code = str(getattr(row, 'code'))
+        if not code.__contains__('.'):
+            code = 'SH.' + code if code.startswith('5') else 'SZ.' + code
+        if code in allCode:
+            print(code)
+        else:
+            allCode.append(code)
+            check_length()
+            if is_in_week_day_trend(code):
+                selectCode.append(code)
+                selectName.append(getattr(row, 'name'))
+
+    plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673', 'SH.BK0932', 'SH.BK0068', 'SH.BK0092', 'SH.BK0350',
+                  'SH.BK0652', 'SH.000807', 'SH.BK0637', 'SH.000069', 'SH.000126', 'SZ.399364', 'HK.800000',
+                  'HK.800700']
+    for plate in plate_list:
+        ret, data = fu.quote_context.get_plate_stock(plate)
+        if ret == RET_OK:
+            for row in data.itertuples():
+                code = getattr(row, 'code')
+                if code in allCode:
+                    print(code)
+                else:
+                    allCode.append(code)
+                    check_length()
+                    if is_in_week_day_trend(code):
+                        selectCode.append(code)
+                        selectName.append(getattr(row, 'stock_name'))
+
+    print(selectName)
+    print(selectCode)
+    fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, selectCode[::-1])

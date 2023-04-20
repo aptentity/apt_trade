@@ -8,6 +8,7 @@ import second_wave
 def day_job():
     try:
         stock_filter.select_etf()
+        stock_filter.select_object_in_trend()
         stock_filter.overfall()
         stock_filter.select_stock_day_trend()
     finally:
@@ -34,10 +35,11 @@ logging.basicConfig(level=logging.INFO,
                     filemode='a',
                     format='%(asctime)s - %(filename)s[line:%(lineno)d]: %(message)s')
 # long_job()
+stock_filter.select_etf()
 short_job()
 # schedule.every(60).minutes.do(long_job)
-schedule.every(10).minutes.do(short_job)
-schedule.every().day.at("14:45").do(day_job)
+schedule.every(15).minutes.do(short_job)
+schedule.every().day.at("14:40").do(day_job)
 
 while True:
     schedule.run_pending()

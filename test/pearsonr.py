@@ -67,3 +67,4 @@ def get_corr(data, column):
 
 
 get_corr(week_data, 'close')
+

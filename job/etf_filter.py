@@ -24,7 +24,7 @@ def get_lof_list():
     b.to_csv('lof.csv')
 
 
-etf = pd.read_csv('etf_new.csv')
+etf = pd.read_csv('../object/etf_new.csv')
 new_etf = etf[etf['avgamount'] > 5000]
 # new_etf = new_etf.sort_values(by='name')
 print(new_etf)

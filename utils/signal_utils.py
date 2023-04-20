@@ -64,6 +64,28 @@ def ema_death_cross(close):
     return ema10.iloc[-1] < base.iloc[-1] and ema10.iloc[-2] > base.iloc[-2]
 
 
+def ema_below_base2(close, short=10, middle=30, high=72, day=1):
+    ema10 = get_EMA(close, short)
+    ema30 = get_EMA(close, middle)
+    ema72 = get_EMA(close, high)
+    base = (ema30 + ema72) / 2
+    for i in range(day):
+        if ema10.iloc[-1 - i] > base.iloc[-1]:
+            return False
+    return True
+
+
+def ema_above_base2(close, short=10, middle=30, high=72, day=1):
+    ema10 = get_EMA(close, short)
+    ema30 = get_EMA(close, middle)
+    ema72 = get_EMA(close, high)
+    base = (ema30 + ema72) / 2
+    for i in range(day):
+        if ema10.iloc[-1 - i] < base.iloc[-1]:
+            return False
+    return True
+
+
 def ema_above_base(close):
     ema10 = get_EMA(close, 10)
     ema30 = get_EMA(close, 30)
