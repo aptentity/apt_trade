@@ -455,9 +455,9 @@ def select_object_in_trend():
                 selectCode.append(getattr(row, 'code'))
                 selectName.append(getattr(row, 'name'))
 
-    etf = pd.read_csv('../object/etf_new.csv')
-    stock = pd.read_csv('../object/stock.csv')
-    stock_low = pd.read_csv('../object/stock_low.csv')
+    etf = pd.read_csv('./object/etf_new.csv')
+    stock = pd.read_csv('./object/stock.csv')
+    stock_low = pd.read_csv('./object/stock_low.csv')
     new_list = pd.concat([etf, stock, stock_low])
     for row in new_list.itertuples():
         code = str(getattr(row, 'code'))
@@ -472,9 +472,9 @@ def select_object_in_trend():
                 selectCode.append(code)
                 selectName.append(getattr(row, 'name'))
 
-    plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673', 'SH.BK0932', 'SH.BK0068', 'SH.BK0092', 'SH.BK0350',
-                  'SH.BK0652', 'SH.000807', 'SH.BK0637', 'SH.000069', 'SH.000126', 'SZ.399364', 'HK.800000',
-                  'HK.800700']
+    plate = pd.read_csv('./object/plate.csv')
+    plate_list = plate[plate['enable'] != 'n']
+
     for plate in plate_list:
         ret, data = fu.quote_context.get_plate_stock(plate)
         if ret == RET_OK:
@@ -488,7 +488,41 @@ def select_object_in_trend():
                     if is_in_week_day_trend(code):
                         selectCode.append(code)
                         selectName.append(getattr(row, 'stock_name'))
+        else:
+            print(plate, data)
 
     print(selectName)
     print(selectCode)
     fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, selectCode[::-1])
+
+
+def select_object_in_trend_in_plate(plate_list):
+    def check_length():
+        if len(allCode) % 150 == 0:
+            print(allCode)
+            print(len(allCode))
+            time.sleep(60)
+            fu.quote_context.unsubscribe_all()
+
+    allCode = []
+    selectName = []
+    selectCode = []
+    for plate in plate_list:
+        ret, data = fu.quote_context.get_plate_stock(plate)
+        if ret == RET_OK:
+            for row in data.itertuples():
+                code = getattr(row, 'code')
+                print(code)
+                if code in allCode:
+                    print(code)
+                else:
+                    allCode.append(code)
+                    check_length()
+                    if is_in_week_day_trend(code):
+                        selectCode.append(code)
+                        selectName.append(getattr(row, 'stock_name'))
+        else:
+            print(data)
+
+    print(selectName)
+    print(selectCode)

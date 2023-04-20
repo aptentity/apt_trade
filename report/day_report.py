@@ -2,7 +2,7 @@ import datetime
 
 import day_bear
 import day_bull
-from job import select_plate
+from job_old import select_plate
 import select_stock
 import trend_bear
 import trend_bull

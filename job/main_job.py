@@ -1,8 +1,7 @@
 import schedule
 from futu import *
-import select_plate
 import stock_filter
-import second_wave
+from job_old import second_wave
 
 
 def day_job():
@@ -35,7 +34,6 @@ logging.basicConfig(level=logging.INFO,
                     filemode='a',
                     format='%(asctime)s - %(filename)s[line:%(lineno)d]: %(message)s')
 # long_job()
-stock_filter.select_etf()
 short_job()
 # schedule.every(60).minutes.do(long_job)
 schedule.every(15).minutes.do(short_job)

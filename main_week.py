@@ -1,3 +1,3 @@
-from job import select_plate
+from job_old import select_plate
 
 select_plate.select_plate()

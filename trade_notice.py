@@ -1,4 +1,4 @@
-from job import select_plate
+from job_old import select_plate
 from utils import futuUtils as fu
 from futu import *
 import pandas_ta as ta

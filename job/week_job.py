@@ -1,4 +1,4 @@
-import select_plate
+from job_old import select_plate
 import stock_filter
 
 select_plate.select_plate()
