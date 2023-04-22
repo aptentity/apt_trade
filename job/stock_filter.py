@@ -368,7 +368,7 @@ def select_up_and_down():
 
 
 def select_etf():
-    etf = pd.read_csv('./object/etf_new.csv')
+    etf = pd.read_csv('../object/etf_new.csv')
     selectName = []
     selectCode = []
     select_day_code = []
@@ -427,9 +427,9 @@ def is_in_week_day_trend(code):
         ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_DAY)
         if ret != RET_OK:
             print(code, data)
-        elif su.ema_above_base2(data['close'], day=5) and su.macd_up(data['close']):
-            if data['close'].iloc[-1] / data['open'].iloc[-1] < 1.05 and data['close'].iloc[-1] / data['open'].iloc[
-                -3] < 1.12:
+        elif data['close'].iloc[-1] < 150 and su.ema_above_base2(data['close'], day=5) and su.macd_up(data['close']):
+            if data['close'].iloc[-1] / data['close'].iloc[-2] < 1.05 and data['close'].iloc[-1] / data['close'].iloc[
+                -4] < 1.12:
                 return True
     return False
 
@@ -455,9 +455,9 @@ def select_object_in_trend():
                 selectCode.append(getattr(row, 'code'))
                 selectName.append(getattr(row, 'name'))
 
-    etf = pd.read_csv('./object/etf_new.csv')
-    stock = pd.read_csv('./object/stock.csv')
-    stock_low = pd.read_csv('./object/stock_low.csv')
+    etf = pd.read_csv('../object/etf_new.csv')
+    stock = pd.read_csv('../object/stock.csv')
+    stock_low = pd.read_csv('../object/stock_low.csv')
     new_list = pd.concat([etf, stock, stock_low])
     for row in new_list.itertuples():
         code = str(getattr(row, 'code'))
@@ -472,10 +472,12 @@ def select_object_in_trend():
                 selectCode.append(code)
                 selectName.append(getattr(row, 'name'))
 
-    plate = pd.read_csv('./object/plate.csv')
+    plate = pd.read_csv('../object/plate.csv')
     plate_list = plate[plate['enable'] != 'n']
+    print(plate_list)
 
-    for plate in plate_list:
+    for plate in plate_list['code']:
+        print(plate)
         ret, data = fu.quote_context.get_plate_stock(plate)
         if ret == RET_OK:
             for row in data.itertuples():

@@ -1,5 +1,6 @@
 # 获取EMA数据 , cps：close_prices 收盘价集合 days:日期 days=5 5日线
 def get_EMA(cps, days):
+    print(cps)
     emas = cps.copy()  # 创造一个和cps一样大小的集合
     for i in range(len(cps)):
         if i == 0:
