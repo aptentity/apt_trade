@@ -20,7 +20,6 @@ def short_job():
     print("short_job done")
 
 
-day_job()
 logging.basicConfig(level=logging.INFO,
                     filename='./main_log.txt',
                     filemode='a',
@@ -30,5 +29,6 @@ schedule.every(15).minutes.do(short_job)
 schedule.every().day.at("14:40").do(day_job)
 
 while True:
+    print('---------------')
     schedule.run_pending()
     time.sleep(10)

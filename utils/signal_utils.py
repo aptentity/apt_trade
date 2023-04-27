@@ -1,6 +1,5 @@
 # 获取EMA数据 , cps：close_prices 收盘价集合 days:日期 days=5 5日线
 def get_EMA(cps, days):
-    print(cps)
     emas = cps.copy()  # 创造一个和cps一样大小的集合
     for i in range(len(cps)):
         if i == 0:
@@ -29,6 +28,24 @@ def macd_down(close):
 
 
 def macd_up(close):
+    result = cal_macd(close)
+    if len(result) < 4:
+        return False
+    if result.iloc[-1] > 0 and result.iloc[-3] < 0 and result.iloc[-1] > result.iloc[-2] > result.iloc[-3] < \
+            result.iloc[-4]:
+        return True
+    elif result.iloc[-2] < result.iloc[-1] <= 0:
+        minmacd = 0
+        for i in range(20):
+            if result.iloc[-i - 1] > 0:
+                break
+            minmacd = minmacd if minmacd < result.iloc[-i - 1] else result.iloc[-i - 1]
+        if result.iloc[-1] > minmacd / 2:
+            return True
+    return False
+
+
+def macd_up2(close):
     result = cal_macd(close)
     if len(result) < 4:
         return False
@@ -88,6 +105,9 @@ def ema_above_base2(close, short=10, middle=30, high=72, day=1):
 
 
 def ema_above_base(close):
+    if len(close) == 0:
+        print('length is 0')
+        return False
     ema10 = get_EMA(close, 10)
     ema30 = get_EMA(close, 30)
     ema72 = get_EMA(close, 72)

@@ -391,19 +391,17 @@ def select_etf():
                 chaodie.append(new_code)
 
             # 周线向上
-            if su.macd_up(data['close']):
+            if su.macd_up(data['close']) or su.macd_up2(data['close']):
                 selectCode.append(new_code)
                 selectName.append(getattr(item, 'name'))
-
-            if su.ema_above_base(data['close']):
-                print(new_code, getattr(item, 'name'))
+            else:
                 fu.quote_context.subscribe(new_code, SubType.K_DAY)
                 ret1, data1 = fu.quote_context.get_cur_kline(new_code, 1000, SubType.K_DAY)
-                if ret != RET_OK:
-                    print(code, data)
-                elif su.macd_up(data1['close']):
-                    select_day_code.append(new_code)
-                    selectName.append(getattr(item, 'name'))
+
+                if ret == RET_OK and su.ema_above_base2(data1['close'], day=5):
+                    if su.macd_up(data1['close']) or su.macd_king_cross(data1['close']) or su.macd_up2(data1['close']):
+                        select_day_code.append(new_code)
+                        select_day_name.append(getattr(item, 'name'))
 
     print('chaodie', chaodie)
     print('selectCode', selectCode)
@@ -427,10 +425,12 @@ def is_in_week_day_trend(code):
         ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_DAY)
         if ret != RET_OK:
             print(code, data)
-        elif data['close'].iloc[-1] < 150 and su.ema_above_base2(data['close'], day=5) and su.macd_up(data['close']):
-            if data['close'].iloc[-1] / data['close'].iloc[-2] < 1.05 and data['close'].iloc[-1] / data['close'].iloc[
-                -4] < 1.12:
-                return True
+        elif data['close'].iloc[-1] < 150 and \
+                su.ema_above_base2(data['close'], day=5) and \
+                (su.macd_up(data['close']) or su.macd_king_cross(data['close'])) and \
+                data['close'].iloc[-1] / data['close'].iloc[-2] < 1.07 and \
+                data['close'].iloc[-1] / data['close'].iloc[-4] < 1.15:
+            return True
     return False
 
 
@@ -487,6 +487,7 @@ def select_object_in_trend():
                 else:
                     allCode.append(code)
                     check_length()
+                    print('-------------', code)
                     if is_in_week_day_trend(code):
                         selectCode.append(code)
                         selectName.append(getattr(row, 'stock_name'))

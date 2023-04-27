@@ -1,6 +1,5 @@
-name,code,close,rate,premium,tag,mtexp,fundfirm,listdate,index,avgamount,m1,y0,y1,y3,y5,scale
-中国通号,SH.688009,1.016,10120,9971,,0.60%,易方达基金,2023/4/12,绿色电力指数,8715.08,10000,10000,10000,10000,10000,2.37
-京东方A,SZ.000725,,,,,,
+name,code,close,rate
+京东方A,SZ.000725,
 中国人寿	,SH.601628,
 中国平安,SH.601318,,
 中国人保,SH.601319,
