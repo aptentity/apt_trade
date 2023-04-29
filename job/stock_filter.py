@@ -429,14 +429,20 @@ def is_in_week_day_trend(code):
                 su.ema_above_base2(data['close'], day=5) and \
                 (su.macd_up(data['close']) or su.macd_king_cross(data['close'])) and \
                 data['close'].iloc[-1] / data['close'].iloc[-2] < 1.07 and \
-                data['close'].iloc[-1] / data['close'].iloc[-4] < 1.15:
+                data['close'].iloc[-1] / data['close'].iloc[-4] < 1.15 and \
+                data['turnover'].iloc[-1] / (
+                (data['turnover'].iloc[-2] + data['turnover'].iloc[-3] + data['turnover'].iloc[-4]) / 3) < 2:  # 成交量
             return True
     return False
 
 
 def select_object_in_trend():
+    select_object(is_in_week_day_trend)
+
+
+def select_object(fun, n=150):
     def check_length():
-        if len(allCode) % 150 == 0:
+        if len(allCode) % n == 0:
             print(allCode)
             print(len(allCode))
             time.sleep(60)
@@ -451,14 +457,13 @@ def select_object_in_trend():
             code = getattr(row, 'code')
             allCode.append(code)
             check_length()
-            if is_in_week_day_trend(getattr(row, 'code')):
+            if fun(getattr(row, 'code')):
                 selectCode.append(getattr(row, 'code'))
                 selectName.append(getattr(row, 'name'))
 
     etf = pd.read_csv('../object/etf_new.csv')
     stock = pd.read_csv('../object/stock.csv')
-    stock_low = pd.read_csv('../object/stock_low.csv')
-    new_list = pd.concat([etf, stock, stock_low])
+    new_list = pd.concat([etf, stock])
     for row in new_list.itertuples():
         code = str(getattr(row, 'code'))
         if not code.__contains__('.'):
@@ -468,7 +473,7 @@ def select_object_in_trend():
         else:
             allCode.append(code)
             check_length()
-            if is_in_week_day_trend(code):
+            if fun(code):
                 selectCode.append(code)
                 selectName.append(getattr(row, 'name'))
 
@@ -477,7 +482,6 @@ def select_object_in_trend():
     print(plate_list)
 
     for plate in plate_list['code']:
-        print(plate)
         ret, data = fu.quote_context.get_plate_stock(plate)
         if ret == RET_OK:
             for row in data.itertuples():
@@ -488,7 +492,7 @@ def select_object_in_trend():
                     allCode.append(code)
                     check_length()
                     print('-------------', code)
-                    if is_in_week_day_trend(code):
+                    if fun(code):
                         selectCode.append(code)
                         selectName.append(getattr(row, 'stock_name'))
         else:
@@ -529,3 +533,24 @@ def select_object_in_trend_in_plate(plate_list):
 
     print(selectName)
     print(selectCode)
+
+
+def select_object_in_week_trend():
+    # allCode = []
+    select_object(is_in_trend, 300)
+    # plate = pd.read_csv('../object/plate.csv')
+    # plate_list = plate[plate['enable'] != 'n']
+    # print(plate_list)
+    #
+    # for plate in plate_list['code']:
+    #     ret, data = fu.quote_context.get_plate_stock(plate)
+    #     if ret == RET_OK:
+    #         for row in data.itertuples():
+    #             code = getattr(row, 'code')
+    #             if code not in allCode:
+    #                 allCode.append(code)
+    #         print(plate, len(data))
+    #     else:
+    #         print(data)
+    #     print('all: ', len(allCode))
+    #     time.sleep(5)

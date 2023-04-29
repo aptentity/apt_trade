@@ -126,6 +126,8 @@ def ema_below_base(close):
 
 
 def qushi_dibu(close):
+    if len(close) < 10:
+        return False
     ema10 = get_EMA(close, 10)
     ema30 = get_EMA(close, 30)
     ema72 = get_EMA(close, 72)
