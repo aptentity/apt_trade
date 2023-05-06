@@ -74,6 +74,14 @@ def ema_king_cross(close):
     return ema10.iloc[-1] > base.iloc[-1] and ema10.iloc[-2] < base.iloc[-2]
 
 
+def ema_king_cross2(close, n):
+    ema10 = get_EMA(close, 10)
+    ema30 = get_EMA(close, 30)
+    ema72 = get_EMA(close, 72)
+    base = (ema30 + ema72) / 2
+    return ema10.iloc[-1] > base.iloc[-1] and ema10.iloc[-n] < base.iloc[-n]
+
+
 def ema_death_cross(close):
     ema10 = get_EMA(close, 10)
     ema30 = get_EMA(close, 30)

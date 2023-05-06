@@ -18,4 +18,14 @@ def between_time():
         return False
 
 
-print(between_time())
+# print(between_time())
+
+# 获取前1天或N天的日期，beforeOfDay=1：前1天；beforeOfDay=N：前N天
+def getdate(beforeOfDay):
+    import datetime
+    today = datetime.datetime.now()
+    # 计算偏移量
+    offset = datetime.timedelta(days=-beforeOfDay)
+    # 获取想要的日期的时间
+    re_date = (today + offset).strftime('%Y-%m-%d')  # #号可以去除0
+    return re_date

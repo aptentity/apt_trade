@@ -1,9 +1,8 @@
 from utils import futuUtils as fu
 from futu import *
-from utils import signal_utils as su
-from utils import dingding as dd
 import pandas as pd
-import stock_filter
+from job_old import stock_filter
+import day_job
 
 
 def add_all():
@@ -25,6 +24,3 @@ def add_all():
 # print(data)
 # print(data['turnover'].iloc[-1] / (
 #                 (data['turnover'].iloc[-2] + data['turnover'].iloc[-3] + data['turnover'].iloc[-4]) / 3))
-
-
-print(stock_filter.is_in_week_day_trend('SZ.159941'))

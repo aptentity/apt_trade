@@ -5,6 +5,7 @@
 # 4、操作->买点：重点中15分钟macd零轴下拐头向上
 # 5、卖点：自选股中15分钟macd零轴上拐头向下
 # 6、超跌：日或者周跌破AB1
+import time
 
 from utils import futuUtils as fu
 from futu import *
@@ -226,42 +227,11 @@ def overfall():
         print('overfall_day:', selectDayName)
 
 
-def is_in_trend(code):
-    fu.quote_context.subscribe(code, SubType.K_WEEK)
-    ret, data = fu.quote_context.get_cur_kline(code, 200, SubType.K_WEEK)
-    if ret != RET_OK:
-        print(data)
-    return ret == RET_OK and su.qushi_dibu(data['close'])
-
-
-def select_stock_in_plate(plate_list=None):
-    if plate_list is None:
-        plate_list = ['SZ.399997', 'SH.000300', 'SZ.399673']
-        # , 'SH.BK0932', 'SH.BK0068', 'SH.BK0092', 'SH.BK0350',
-        #           'SH.BK0652', 'SH.000807', 'SH.BK0637', 'SH.000069', 'SH.000126', 'SZ.399364']
-    # plate_list = ['SH.BK0800']
-    selectName = []
-    selectCode = []
-    count = 0
-    fu.quote_context.unsubscribe_all()
-    for plate in plate_list:
-        ret, data = fu.quote_context.get_plate_stock(plate)
-        if ret == RET_OK:
-            print(len(data))
-            for row in data.itertuples():
-                count = count + 1
-                print(getattr(row, 'code'))
-                if is_in_trend(getattr(row, 'code')):
-                    selectCode.append(getattr(row, 'code'))
-                    selectName.append(getattr(row, 'stock_name'))
-                if count % 300 == 0:
-                    count = 0
-                    time.sleep(60)
-                    fu.quote_context.unsubscribe_all()
-
-        print(plate)
-        print(selectName)
-    fu.quote_context.modify_user_security("重点", ModifyUserSecurityOp.ADD, selectCode[::-1])
+def sleep_and_retry(data):
+    print(data)
+    if data == '订阅额度不足':
+        time.sleep(60)
+        fu.quote_context.unsubscribe_all()
 
 
 # 选择回踩低点的，区间震荡股票
@@ -367,87 +337,8 @@ def select_up_and_down():
         dd.send_notice(tips)
 
 
-def select_etf():
-    etf = pd.read_csv('../object/etf_new.csv')
-    selectName = []
-    selectCode = []
-    select_day_code = []
-    select_day_name = []
-
-    chaodie = []
-    for item in etf.itertuples():
-        code = str(getattr(item, 'code'))
-        if not code.__contains__('.'):
-            new_code = 'SH.' + code if code.startswith('5') else 'SZ.' + code
-        else:
-            new_code = code
-        fu.quote_context.subscribe(new_code, SubType.K_WEEK)
-        ret, data = fu.quote_context.get_cur_kline(new_code, 200, SubType.K_WEEK)
-        if ret != RET_OK:
-            print(code, data)
-        else:
-            # 超跌
-            if su.chaodie(data['close'], data['low']):
-                chaodie.append(new_code)
-
-            # 周线向上
-            if su.macd_up(data['close']) or su.macd_up2(data['close']):
-                selectCode.append(new_code)
-                selectName.append(getattr(item, 'name'))
-            else:
-                fu.quote_context.subscribe(new_code, SubType.K_DAY)
-                ret1, data1 = fu.quote_context.get_cur_kline(new_code, 1000, SubType.K_DAY)
-
-                if ret == RET_OK and su.ema_above_base2(data1['close'], day=5):
-                    if su.macd_up(data1['close']) or su.macd_king_cross(data1['close']) or su.macd_up2(data1['close']):
-                        select_day_code.append(new_code)
-                        select_day_name.append(getattr(item, 'name'))
-
-    print('chaodie', chaodie)
-    print('selectCode', selectCode)
-    print('selectName', selectName)
-    print('select_day_code:', select_day_code)
-    print('select_day_name:', select_day_name)
-
-    fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, chaodie[::-1])
-    fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, selectCode[::-1])
-    fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, select_day_code[::-1])
-
-
-# 周线和日线均良好
-def is_in_week_day_trend(code):
-    fu.quote_context.subscribe(code, SubType.K_WEEK)
-    ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_WEEK)
-    if ret != RET_OK:
-        print(code, data)
-    elif su.ema_above_base(data['close']):
-        fu.quote_context.subscribe(code, SubType.K_DAY)
-        ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_DAY)
-        if ret != RET_OK:
-            print(code, data)
-        elif data['close'].iloc[-1] < 150 and \
-                su.ema_above_base2(data['close'], day=5) and \
-                (su.macd_up(data['close']) or su.macd_king_cross(data['close'])) and \
-                data['close'].iloc[-1] / data['close'].iloc[-2] < 1.07 and \
-                data['close'].iloc[-1] / data['close'].iloc[-4] < 1.15 and \
-                data['turnover'].iloc[-1] / (
-                (data['turnover'].iloc[-2] + data['turnover'].iloc[-3] + data['turnover'].iloc[-4]) / 3) < 2:  # 成交量
-            return True
-    return False
-
-
-def select_object_in_trend():
-    select_object(is_in_week_day_trend)
-
-
-def select_object(fun, n=150):
-    def check_length():
-        if len(allCode) % n == 0:
-            print(allCode)
-            print(len(allCode))
-            time.sleep(60)
-            fu.quote_context.unsubscribe_all()
-
+# 从沪深、文件、概念中选股
+def select_object(fun):
     allCode = []
     selectName = []
     selectCode = []
@@ -456,7 +347,6 @@ def select_object(fun, n=150):
         for row in data.itertuples():
             code = getattr(row, 'code')
             allCode.append(code)
-            check_length()
             if fun(getattr(row, 'code')):
                 selectCode.append(getattr(row, 'code'))
                 selectName.append(getattr(row, 'name'))
@@ -472,7 +362,6 @@ def select_object(fun, n=150):
             print(code)
         else:
             allCode.append(code)
-            check_length()
             if fun(code):
                 selectCode.append(code)
                 selectName.append(getattr(row, 'name'))
@@ -490,7 +379,6 @@ def select_object(fun, n=150):
                     print(code)
                 else:
                     allCode.append(code)
-                    check_length()
                     print('-------------', code)
                     if fun(code):
                         selectCode.append(code)
@@ -501,56 +389,3 @@ def select_object(fun, n=150):
     print(selectName)
     print(selectCode)
     fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, selectCode[::-1])
-
-
-def select_object_in_trend_in_plate(plate_list):
-    def check_length():
-        if len(allCode) % 150 == 0:
-            print(allCode)
-            print(len(allCode))
-            time.sleep(60)
-            fu.quote_context.unsubscribe_all()
-
-    allCode = []
-    selectName = []
-    selectCode = []
-    for plate in plate_list:
-        ret, data = fu.quote_context.get_plate_stock(plate)
-        if ret == RET_OK:
-            for row in data.itertuples():
-                code = getattr(row, 'code')
-                print(code)
-                if code in allCode:
-                    print(code)
-                else:
-                    allCode.append(code)
-                    check_length()
-                    if is_in_week_day_trend(code):
-                        selectCode.append(code)
-                        selectName.append(getattr(row, 'stock_name'))
-        else:
-            print(data)
-
-    print(selectName)
-    print(selectCode)
-
-
-def select_object_in_week_trend():
-    # allCode = []
-    select_object(is_in_trend, 300)
-    # plate = pd.read_csv('../object/plate.csv')
-    # plate_list = plate[plate['enable'] != 'n']
-    # print(plate_list)
-    #
-    # for plate in plate_list['code']:
-    #     ret, data = fu.quote_context.get_plate_stock(plate)
-    #     if ret == RET_OK:
-    #         for row in data.itertuples():
-    #             code = getattr(row, 'code')
-    #             if code not in allCode:
-    #                 allCode.append(code)
-    #         print(plate, len(data))
-    #     else:
-    #         print(data)
-    #     print('all: ', len(allCode))
-    #     time.sleep(5)

@@ -3,21 +3,7 @@
   <component name="CsvFileAttributes">
     <option name="attributeMap">
       <map>
-        <entry key="/object/etf.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
         <entry key="/object/etf_new.csv">
-          <value>
-            <Attribute>
-              <option name="separator" value="," />
-            </Attribute>
-          </value>
-        </entry>
-        <entry key="/object/lof.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />
@@ -38,7 +24,7 @@
             </Attribute>
           </value>
         </entry>
-        <entry key="/object/stock_low.csv">
+        <entry key="/object/yesterday_limit.csv">
           <value>
             <Attribute>
               <option name="separator" value="," />

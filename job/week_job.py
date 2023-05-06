@@ -1,9 +1,8 @@
-from job_old import select_plate
-import stock_filter
+from strategy import object_filter
+from strategy import filter_strategy
 
-stock_filter.select_object_in_week_trend()
-stock_filter.select_etf()
-select_plate.select_plate()
-stock_filter.select_stock_in_interval()
-stock_filter.overfall()
+object_filter.select_object_from_my(filter_strategy.is_in_week_trend_buy)
+object_filter.select_object_from_etf(filter_strategy.is_in_week_trend_buy)
+object_filter.select_object_from_plate(filter_strategy.is_in_week_trend_buy)
+object_filter.select_plate(filter_strategy.is_in_week_trend_buy)
 print('end')
