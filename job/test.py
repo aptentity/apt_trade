@@ -2,7 +2,6 @@ from utils import futuUtils as fu
 from futu import *
 import pandas as pd
 from job_old import stock_filter
-import day_job
 
 
 def add_all():
@@ -24,3 +23,16 @@ def add_all():
 # print(data)
 # print(data['turnover'].iloc[-1] / (
 #                 (data['turnover'].iloc[-2] + data['turnover'].iloc[-3] + data['turnover'].iloc[-4]) / 3))
+
+
+# ret, data = fu.quote_context.get_owner_plate(['HK.00001', 'SZ.002291', 'SZ.002315'])
+# if ret == RET_OK:
+#     print(data)
+#     print(data['code'][0])  # 取第一条的股票代码
+#     print(data['plate_code'].values.tolist())  # 板块代码转为 list
+# else:
+#     print('error:', data)
+
+ret, data = fu.quote_context.get_plate_stock('SH.BK0250')
+if ret == RET_OK:
+    print(data)
