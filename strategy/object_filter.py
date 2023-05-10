@@ -23,6 +23,7 @@ def select_object_from_etf(fun):
     print(selectName)
     print(selectCode)
     fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, selectCode[::-1])
+    return selectCode
 
 
 def select_object_from_my_select(fun):
@@ -73,12 +74,12 @@ def select_object_from_my(fun):
 
 def select_plate(fun):
     print('call select_plate', fun)
-    group_name = '板块'
+    group_name = 'ETF'
     resultCode = []
     resultName = []
 
     fu.delete_user_security(group_name)
-    ret, data = fu.quote_context.get_plate_list(Market.SH, Plate.ALL)
+    ret, data = fu.quote_context.get_plate_list(Market.SH, Plate.INDUSTRY)
     if ret == RET_OK:
         for row in data.itertuples():
             code = getattr(row, 'code')
