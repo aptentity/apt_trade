@@ -8,7 +8,7 @@ def add_all():
     selectCode = []
     etf = pd.read_csv('../object/etf_new.csv')
     stock = pd.read_csv('../object/stock.csv')
-    new_list = pd.concat([etf, stock])
+    new_list = etf  # pd.concat([etf, stock])
     for row in new_list.itertuples():
         code = str(getattr(row, 'code'))
         if not code.__contains__('.'):
@@ -17,6 +17,7 @@ def add_all():
     fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, selectCode[::-1])
 
 
+add_all()
 # stock_filter.select_object_in_trend()
 # fu.quote_context.subscribe('SZ.000001', SubType.K_DAY)
 # ret, data = fu.quote_context.get_cur_kline('SZ.000001', 1000, SubType.K_DAY)
@@ -33,6 +34,6 @@ def add_all():
 # else:
 #     print('error:', data)
 
-ret, data = fu.quote_context.get_plate_stock('SH.BK0250')
-if ret == RET_OK:
-    print(data)
+# ret, data = fu.quote_context.get_plate_stock('SH.BK0250')
+# if ret == RET_OK:
+#     print(data)

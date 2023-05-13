@@ -46,11 +46,11 @@ def is_in_day_week_trend_buy(code):
         if ret != RET_OK:
             print(code, data)
         elif data['close'].iloc[-1] < 150 and \
-                su.ema_above_base2(data['close'], day=5, short=20) and \
-                su.ema_above_base2(data['close'], day=5, short=5) and \
-                (su.macd_up(data['close']) or su.macd_king_cross(data['close'])) and \
-                data['close'].iloc[-1] / data['close'].iloc[-2] < 1.07 and \
-                data['close'].iloc[-1] / data['close'].iloc[-4] < 1.15 and \
+                su.ema_above_base2(data['close'], day=5, short=15) and \
+                (su.macd_up(data['close']) or su.macd_king_cross(data['close']) or su.ema5_20_king_cross(
+                    data['close'])) and \
+                data['close'].iloc[-1] / data['close'].iloc[-2] < 1.05 and \
+                data['close'].iloc[-1] / data['close'].iloc[-4] < 1.10 and \
                 data['turnover'].iloc[-1] / (
                 (data['turnover'].iloc[-2] + data['turnover'].iloc[-3] + data['turnover'].iloc[-4]) / 3) < 2.5:  # 成交量
             return True
@@ -67,7 +67,7 @@ def is_in_day_trend_buy(code):
         print(code, data)
     elif data['close'].iloc[-1] < 150 and \
             su.ema_above_base2(data['close'], day=5, short=20) and \
-            (su.macd_up(data['close']) or su.macd_king_cross(data['close'])) and \
+            (su.macd_up(data['close']) or su.macd_king_cross(data['close']) or su.ema5_20_king_cross(data['close'])) and \
             data['close'].iloc[-1] / data['close'].iloc[-2] < 1.07 and \
             data['close'].iloc[-1] / data['close'].iloc[-4] < 1.15 and \
             data['turnover'].iloc[-1] / (

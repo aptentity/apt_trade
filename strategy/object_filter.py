@@ -8,11 +8,13 @@ from utils import dingding as dd
 import pandas as pd
 
 
-def select_object_from_etf(fun):
+def select_object_from_etf(fun, status=0):
     print('call select_object_from_etf', fun)
     selectName = []
     selectCode = []
     etf = pd.read_csv('../object/etf_new.csv')
+    if status != 0:
+        etf = etf[etf['status'] == status]
     for row in etf.itertuples():
         code = str(getattr(row, 'code'))
         if not code.__contains__('.'):
@@ -41,7 +43,7 @@ def select_object_from_my_select(fun):
     return selectCode
 
 
-def select_object_from_my(fun):
+def select_object_from_my(fun, status=0):
     print('call select_object_from_my', fun)
     allCode = []
     selectName = []
@@ -56,6 +58,8 @@ def select_object_from_my(fun):
                 selectName.append(getattr(row, 'name'))
 
     stock = pd.read_csv('../object/stock.csv')
+    if status != 0:
+        stock = stock[stock['status'] == status]
     for row in stock.itertuples():
         code = str(getattr(row, 'code'))
         if not code.__contains__('.'):

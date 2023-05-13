@@ -66,6 +66,14 @@ def macd_king_cross(close):
     return False
 
 
+def ema5_20_king_cross(close):
+    ema5 = get_EMA(close, 5)
+    ema10 = get_EMA(close, 10)
+    if ema5.iloc[-1] > ema10.iloc[-1] and ema5.iloc[-3] < ema10.iloc[-3]:
+        return True
+    return False
+
+
 def ema_king_cross(close):
     ema10 = get_EMA(close, 10)
     ema30 = get_EMA(close, 30)
@@ -91,23 +99,27 @@ def ema_death_cross(close):
 
 
 def ema_below_base2(close, short=10, middle=30, high=72, day=1):
+    if len(close) < day:
+        day = len(close)
     ema10 = get_EMA(close, short)
     ema30 = get_EMA(close, middle)
     ema72 = get_EMA(close, high)
     base = (ema30 + ema72) / 2
     for i in range(day):
-        if ema10.iloc[-1 - i] > base.iloc[-1]:
+        if ema10.iloc[-1 - i] > base.iloc[-1 - i]:
             return False
     return True
 
 
 def ema_above_base2(close, short=10, middle=30, high=72, day=1):
+    if len(close) < day:
+        day = len(close)
     ema10 = get_EMA(close, short)
     ema30 = get_EMA(close, middle)
     ema72 = get_EMA(close, high)
     base = (ema30 + ema72) / 2
     for i in range(day):
-        if ema10.iloc[-1 - i] < base.iloc[-1]:
+        if ema10.iloc[-1 - i] < base.iloc[-1 - i]:
             return False
     return True
 
