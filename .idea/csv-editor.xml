@@ -24,6 +24,13 @@
             </Attribute>
           </value>
         </entry>
+        <entry key="/object/subject.csv">
+          <value>
+            <Attribute>
+              <option name="separator" value="," />
+            </Attribute>
+          </value>
+        </entry>
         <entry key="/object/yesterday_limit.csv">
           <value>
             <Attribute>

@@ -6,6 +6,12 @@ from strategy import filter_strategy
 from utils import futuUtils as fu
 from utils import dingding as dd
 from datasource import yesterday_limit as yl
+import pandas as pd
+
+week_subject_df = pd.DataFrame(columns=['name', 'code'])
+week_subject_df.loc[len(week_subject_df)] = ['千禾味业', 'SH.603027']
+week_subject_df.loc[len(week_subject_df)] = ['千禾味业2', 'SH.603027']
+print(week_subject_df)
 
 
 def day_job():
@@ -13,8 +19,8 @@ def day_job():
 
     # 选择周线走好的ETF
     # fu.delete_user_security('ETF')
-    object_filter.select_object_from_etf(filter_strategy.is_in_day_week_trend_buy)
-    object_filter.select_object_from_my(filter_strategy.is_in_day_week_trend_buy)
+    object_filter.select_from_subject_good(filter_strategy.is_in_day_trend_buy)
+    object_filter.select_from_subject_good(filter_strategy.is_day_start_up)
     # object_filter.select_object_from_plate(filter_strategy.is_in_day_week_trend_buy)
     # object_filter.select_object_from_etf(filter_strategy.is_in_week_trend_buy)
     # object_filter.select_object_from_etf(filter_strategy.is_in_day_trend_buy)
@@ -45,6 +51,6 @@ schedule.every(20).minutes.do(short_job)
 schedule.every().day.at("14:30").do(day_job)
 
 while True:
-    print('---------------')
+    # print('---------------')
     schedule.run_pending()
     time.sleep(10)

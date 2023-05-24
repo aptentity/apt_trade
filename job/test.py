@@ -2,6 +2,8 @@ from utils import futuUtils as fu
 from futu import *
 import pandas as pd
 from job_old import stock_filter
+from strategy import object_filter
+from strategy import filter_strategy
 
 
 def add_all():
@@ -17,7 +19,8 @@ def add_all():
     fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, selectCode[::-1])
 
 
-add_all()
+print(object_filter.select_from_subject_good(filter_strategy.is_day_start_up))
+# add_all()
 # stock_filter.select_object_in_trend()
 # fu.quote_context.subscribe('SZ.000001', SubType.K_DAY)
 # ret, data = fu.quote_context.get_cur_kline('SZ.000001', 1000, SubType.K_DAY)

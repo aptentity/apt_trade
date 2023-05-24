@@ -129,3 +129,30 @@ def is_in_short_buy(code):
     elif su.ema_king_cross2(data['close'], 5):
         return True
     return False
+
+
+def is_day_start_up(code):
+    ret, data = fu.quote_context.subscribe(code, SubType.K_WEEK)
+    if ret != RET_OK:
+        sleep_and_retry(data)
+        fu.quote_context.subscribe(code, SubType.K_WEEK)
+    ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_WEEK)
+    if ret != RET_OK:
+        print(code, data)
+    elif su.ema_above_base(data['close']):
+        ret, data = fu.quote_context.subscribe(code, SubType.K_DAY)
+        if ret != RET_OK:
+            sleep_and_retry(data)
+            fu.quote_context.subscribe(code, SubType.K_DAY)
+        ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_DAY)
+        if ret != RET_OK:
+            print(code, data)
+        else:
+            ema5 = su.get_EMA(data['close'], 5)
+            ema20 = su.get_EMA(data['close'], 20)
+            if ema5.iloc[-10] < ema20.iloc[-10] and ema5.iloc[-9] < ema20.iloc[-9] \
+                    and ema5.iloc[-5] > ema20.iloc[-5] and ema5.iloc[-4] > ema20.iloc[-4] \
+                    and data['close'].iloc[-2] < data['close'].iloc[-3] \
+                    and data['close'].iloc[-2] < data['close'].iloc[-1]:
+                return True
+    return False

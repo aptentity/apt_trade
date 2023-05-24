@@ -69,7 +69,7 @@ def macd_king_cross(close):
 def ema5_20_king_cross(close):
     ema5 = get_EMA(close, 5)
     ema10 = get_EMA(close, 10)
-    if ema5.iloc[-1] > ema10.iloc[-1] and ema5.iloc[-3] < ema10.iloc[-3]:
+    if ema5.iloc[-1] > ema10.iloc[-1] and (ema5.iloc[-4] < ema10.iloc[-4] or ema5.iloc[-3] < ema10.iloc[-3]):
         return True
     return False
 
