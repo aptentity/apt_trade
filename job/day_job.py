@@ -10,7 +10,7 @@ import pandas as pd
 
 week_subject_df = pd.DataFrame(columns=['name', 'code'])
 week_subject_df.loc[len(week_subject_df)] = ['千禾味业', 'SH.603027']
-week_subject_df.loc[len(week_subject_df)] = ['千禾味业2', 'SH.603027']
+week_subject_df.loc[len(week_subject_df)] = ['中国人保', 'SH.601309']
 print(week_subject_df)
 
 
