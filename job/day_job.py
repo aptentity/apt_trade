@@ -7,28 +7,21 @@ from utils import futuUtils as fu
 from utils import dingding as dd
 from datasource import yesterday_limit as yl
 import pandas as pd
+from datasource import status_checker
 
-week_subject_df = pd.DataFrame(columns=['name', 'code'])
-week_subject_df.loc[len(week_subject_df)] = ['千禾味业', 'SH.603027']
-week_subject_df.loc[len(week_subject_df)] = ['中国人保', 'SH.601309']
-print(week_subject_df)
+# week_subject_df = pd.DataFrame(columns=['name', 'code'])
+# week_subject_df.loc[len(week_subject_df)] = ['千禾味业', 'SH.603027']
+# week_subject_df.loc[len(week_subject_df)] = ['中国人保', 'SH.601309']
+# print(week_subject_df)
 
 
 def day_job():
-    yl.get_and_save()
+    # status_checker.check_status()
+    # yl.get_and_save()
 
-    # 选择周线走好的ETF
-    # fu.delete_user_security('ETF')
-    object_filter.select_from_subject_good(filter_strategy.is_in_day_trend_buy)
-    object_filter.select_from_subject_good(filter_strategy.is_day_start_up)
-    # object_filter.select_object_from_plate(filter_strategy.is_in_day_week_trend_buy)
-    # object_filter.select_object_from_etf(filter_strategy.is_in_week_trend_buy)
-    # object_filter.select_object_from_etf(filter_strategy.is_in_day_trend_buy)
-    # object_filter.select_object_from_etf(filter_strategy.is_in_week_trend)
-
-    object_filter.select_object_from_yesterday_limit(40, 7, filter_strategy.is_in_day_trend_buy, '选股')
-    object_filter.select_object_from_yesterday_limit(90, 50, filter_strategy.is_in_week_trend_buy, '选股')
-    fu.quote_context.modify_user_security('选股', ModifyUserSecurityOp.ADD, object_filter.get_hot_plate())
+    object_filter.select_object_from_etf(filter_strategy.sar_buy_15m)
+    object_filter.select_object_from_my(filter_strategy.sar_buy_15m)
+    # object_filter.select_object_from_my_select(filter_strategy.sar_sell)
 
     print("day_job done")
 
@@ -47,7 +40,7 @@ logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(filename)s[line:%(lineno)d]: %(message)s')
 
 day_job()
-schedule.every(20).minutes.do(short_job)
+# schedule.every(20).minutes.do(short_job)
 schedule.every().day.at("14:30").do(day_job)
 
 while True:

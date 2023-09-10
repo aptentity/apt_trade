@@ -58,6 +58,7 @@ def select_object_from_my_select(fun):
                 selectName.append(getattr(row, 'name'))
     print(selectName)
     print(selectCode)
+    fu.quote_context.modify_user_security('空', ModifyUserSecurityOp.ADD, selectCode[::-1])
     return selectCode
 
 
@@ -211,3 +212,4 @@ def select_object_from_plate_list(plates, fun):
 
 # print(filter_base())
 # print(get_hot_plate())
+

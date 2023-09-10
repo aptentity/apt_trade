@@ -3,6 +3,7 @@ from futu import *
 from utils import signal_utils as su
 from utils import dingding as dd
 import pandas as pd
+import talib
 
 
 def empty_strategy(code):
@@ -26,6 +27,18 @@ def is_in_week_trend_buy(code):
     if ret != RET_OK:
         print(data)
     return ret == RET_OK and su.qushi_dibu(data['close'])
+
+
+def is_in_week_up(code):
+    ret, data = fu.quote_context.subscribe(code, SubType.K_WEEK)
+    if ret != RET_OK:
+        sleep_and_retry(data)
+        fu.quote_context.subscribe(code, SubType.K_WEEK)
+
+    ret, data = fu.quote_context.get_cur_kline(code, 200, SubType.K_WEEK)
+    if ret != RET_OK:
+        print(data)
+    return ret == RET_OK and su.macd_up(data['close'])
 
 
 def is_in_day_week_trend_buy(code):
@@ -156,3 +169,85 @@ def is_day_start_up(code):
                     and data['close'].iloc[-2] < data['close'].iloc[-1]:
                 return True
     return False
+
+
+def sar_indicate(code):
+    # print("sar_indicate:" + code)
+    """
+    1- sar翻红
+    2- sar翻绿
+    3- sar红圈
+    4- sar绿圈
+    -1- 错误
+    """
+    ret, data = fu.quote_context.subscribe(code, SubType.K_DAY)
+    if ret != RET_OK:
+        sleep_and_retry(data)
+        fu.quote_context.subscribe(code, SubType.K_DAY)
+    ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_DAY)
+    if ret != RET_OK:
+        print(code, data)
+    else:
+        sar = talib.SAR(data['low'], data['high'])
+        if sar.iloc[-1] < data['close'].iloc[-1] and sar.iloc[-2] > data['close'].iloc[-2]:
+            return 1
+        elif sar.iloc[-1] < data['close'].iloc[-1] and sar.iloc[-2] < data['close'].iloc[-2]:
+            return 3
+        elif sar.iloc[-1] > data['close'].iloc[-1] and sar.iloc[-2] < data['close'].iloc[-2]:
+            return 2
+        elif sar.iloc[-1] > data['close'].iloc[-1] and sar.iloc[-2] > data['close'].iloc[-2]:
+            return 4
+    return -1
+
+
+def sar_buy(code):
+    return sar_indicate(code) == 1 | sar_indicate(code) == 3
+
+
+def sar_sell(code):
+    return sar_indicate(code) == 2 | sar_indicate(code) == 4
+
+
+def sar_buy_15m(code):
+    ret, data = fu.quote_context.subscribe(code, SubType.K_15M)
+    if ret != RET_OK:
+        sleep_and_retry(data)
+        fu.quote_context.subscribe(code, SubType.K_15M)
+    ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
+    if ret != RET_OK:
+        print(code, data)
+    else:
+        sar = talib.SAR(data['low'], data['high'])
+        up = []
+        down = []
+        for index in range(500):
+            if sar.iloc[-1-index] < data['close'].iloc[-1-index] and sar.iloc[-2-index] > data['close'].iloc[-2-index]:
+                up.append(sar.iloc[-1-index])
+            elif sar.iloc[-1-index] > data['close'].iloc[-1-index] and sar.iloc[-2-index] < data['close'].iloc[-2-index]:
+                down.append(sar.iloc[-1 - index])
+        if up[0] > up[1] > up[2] and down[0] > down[1] > down[2]:
+            return True
+    return False
+
+
+def sar_sell_15m(code):
+    ret, data = fu.quote_context.subscribe(code, SubType.K_15M)
+    if ret != RET_OK:
+        sleep_and_retry(data)
+        fu.quote_context.subscribe(code, SubType.K_15M)
+    ret, data = fu.quote_context.get_cur_kline(code, 1000, SubType.K_15M)
+    if ret != RET_OK:
+        print(code, data)
+    else:
+        sar = talib.SAR(data['low'], data['high'])
+        up = []
+        down = []
+        for index in range(500):
+            if sar.iloc[-1-index] < data['close'].iloc[-1-index] and sar.iloc[-2-index] > data['close'].iloc[-2-index]:
+                up.append(sar.iloc[-1-index])
+            elif sar.iloc[-1-index] > data['close'].iloc[-1-index] and sar.iloc[-2-index] < data['close'].iloc[-2-index]:
+                down.append(sar.iloc[-1 - index])
+        if up[0] < up[1] < up[2] and down[0]<down[1]<down[2]:
+            return True
+    return False
+
